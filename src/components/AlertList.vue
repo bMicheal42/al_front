@@ -960,7 +960,7 @@ tr:hover div.action-buttons {
 
 .alert-table thead th,
 .alert-table td {
-  vertical-align: top;
+  vertical-align: middle;
   width: auto;
 }
 

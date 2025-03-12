@@ -318,7 +318,6 @@ export default {
           this.cancelTimer()
           this.abortGetAlerts()
           this.refreshAlerts()
-          this.getEnvironments()
         }
       }
     },
@@ -327,7 +326,6 @@ export default {
         this.cancelTimer()
         this.abortGetAlerts()
         this.refreshAlerts()
-        this.getEnvironments()
       }
     },
     showPanel(val) {
@@ -389,9 +387,6 @@ export default {
     getAlerts() {
       return this.$store.dispatch('alerts/getAlerts')
     },
-    getEnvironments() {
-      this.$store.dispatch('alerts/getEnvironments')
-    },
     playSound() {
       !this.isMute && this.$refs.audio.play()
     },
@@ -405,7 +400,6 @@ export default {
     },
     refreshAlerts() {
       if (this.abortController) return
-      // this.getEnvironments()
       this.getAlerts()
         .then(() => {
           this.isNewOpenAlerts && this.playSound()

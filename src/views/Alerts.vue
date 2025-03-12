@@ -74,7 +74,7 @@
       class="px-1"
       grow
     >
-      <v-tab
+      <!-- <v-tab
         v-for="env in environments"
         :key="env"
         :href="'#tab-' + env"
@@ -82,7 +82,7 @@
         @click="setEnv(env)"
       >
         {{ env }}&nbsp;({{ environmentCounts[env] || 0 }})
-      </v-tab>
+      </v-tab> -->
       <v-spacer />
       <v-btn
         flat
@@ -405,7 +405,7 @@ export default {
     },
     refreshAlerts() {
       if (this.abortController) return
-      this.getEnvironments()
+      // this.getEnvironments()
       this.getAlerts()
         .then(() => {
           this.isNewOpenAlerts && this.playSound()

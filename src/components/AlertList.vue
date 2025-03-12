@@ -790,6 +790,10 @@ export default {
   padding: 0px 5px !important;
 }
 
+.alert-table table.v-table thead tr:first-of-type {
+  height: 42px !important;
+}
+
 .incident-selected {
   background-color: rgba(115, 255, 99, 0.3) !important;
 }

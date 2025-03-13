@@ -142,22 +142,6 @@
     </span>
     <span v-if="col === 'text'">
       <div style="display: flex; gap: 4px;">
-        <button
-          v-if="hasDuplicates && !isChild"
-          class="button-show-details"
-          :class="{'day-mode': !isDark, 'night-mode': isDark}"
-          @click.stop.prevent="toggleExpand(item.id)"
-        >
-          <span
-            class="circle-plus closed"
-            :class="{'opened': isExpanded}"
-          >
-            <span class="circle">
-              <span class="line horizontal" />
-              <span class="line vertical" />
-            </span>
-          </span>
-        </button>
         <div :class="['incident-info-wrapper', hasDuplicates && !isChild ? '' : 'incident-info-wrapper-full']">
           <v-tooltip
             bottom

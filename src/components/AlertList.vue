@@ -24,13 +24,13 @@
       <template #items="{ item, selected: rowSelected }">
         <tr
           :key="item.id"
-          :style="{ 'background-color': isDark? '#616161':'white'}"
+          :style="{ 'background-color': isDark? '#616161':'white', 'cursor': 'pointer' }"
           class="sortableRow sortHandle hover-lighten"
           :class="{'incident-selected': selected.some(s => s.id === item.id)}"
           :data-id="item.id"
           :data-selected="rowSelected"
           data-incident
-          @click.stop="selectItem(item, $event, rowSelected, true)"
+          @click="handleRowClick(item)"
         >
           <td
             class="text-no-wrap"
@@ -507,6 +507,9 @@ export default {
     })
   },
   methods: {
+    handleRowClick(item) {
+      this.toggleExpand(item.id)
+    },
     onIncidentChecked(incident, selected) {
       const rowElement = document.querySelector(`[data-id="${incident.id}"]`)
       if (selected) {

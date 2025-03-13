@@ -93,40 +93,6 @@
         <v-icon>filter_list</v-icon>
       </v-btn>
 
-      <v-menu
-        bottom
-        left
-      >
-        <v-btn
-          slot="activator"
-          flat
-          icon
-        >
-          <v-icon>more_vert</v-icon>
-        </v-btn>
-
-        <v-list>
-          <v-list-tile
-            :disabled="!indicators.length"
-            @click="showPanel = !showPanel"
-          >
-            <v-list-tile-title>
-              {{ showPanel ? $t('Hide') : $t('Show') }} {{ $t('Panel') }}
-            </v-list-tile-title>
-          </v-list-tile>
-          <v-list-tile
-            @click="densityDialog = true"
-          >
-            {{ $t('DisplayDensity') }}
-          </v-list-tile>
-          <v-list-tile
-            @click="toCsv(alertsByEnvironment)"
-          >
-            {{ $t('DownloadAsCsv') }}
-          </v-list-tile>
-        </v-list>
-      </v-menu>
-
       <span class="pr-2" />
 
       <v-tabs-items
@@ -318,7 +284,6 @@ export default {
           this.cancelTimer()
           this.abortGetAlerts()
           this.refreshAlerts()
-          this.getEnvironments()
         }
       }
     },
@@ -327,7 +292,6 @@ export default {
         this.cancelTimer()
         this.abortGetAlerts()
         this.refreshAlerts()
-        this.getEnvironments()
       }
     },
     showPanel(val) {
@@ -389,9 +353,6 @@ export default {
     getAlerts() {
       return this.$store.dispatch('alerts/getAlerts')
     },
-    getEnvironments() {
-      this.$store.dispatch('alerts/getEnvironments')
-    },
     playSound() {
       !this.isMute && this.$refs.audio.play()
     },
@@ -401,11 +362,10 @@ export default {
       })
     },
     setAlert(item) {
-      this.$router.push({ path: `/alert/${item.id}` })
+      // this.$router.push({ path: `/alert/${item.id}` })
     },
     refreshAlerts() {
       if (this.abortController) return
-      // this.getEnvironments()
       this.getAlerts()
         .then(() => {
           this.isNewOpenAlerts && this.playSound()

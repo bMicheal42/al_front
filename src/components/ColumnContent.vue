@@ -3,13 +3,15 @@
     <span v-if="col === 'createTime'">
       <date-time
         :value="item.createTime"
-        format="shortTime"
+        format="mediumDate"
+        custom-format="YYYY-MM-DD HH:mm:ss"
       />
     </span>
     <span v-if="col === 'lastReceiveTime'">
       <date-time
         :value="calculatedLastReceiveTime"
-        format="shortTime"
+        format="mediumDate"
+        custom-format="YYYY-MM-DD HH:mm:ss"
       />
     </span>
     <span v-if="col === 'resource'">

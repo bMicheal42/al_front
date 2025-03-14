@@ -504,7 +504,8 @@
           </v-btn>
           <span>{{ $t('Close') }}</span>
         </v-tooltip>
-
+        <disaster-button @makeDisaster="bulkMakeDisaster" />
+        
 
         <!-- FIXME TEMPORARY HIDDEN ACTION (its need?) -->
         <v-tooltip
@@ -715,7 +716,7 @@
 import Banner from '@/components/lib/Banner.vue'
 import ProfileMe from '@/components/auth/ProfileMe.vue'
 import Snackbar from '@/components/lib/Snackbar.vue'
-
+import DisasterButton from '@/components/AlertActions/DisasterButton.vue'
 import i18n from '@/plugins/i18n'
 
 export default {
@@ -723,7 +724,8 @@ export default {
   components: {
     Banner,
     ProfileMe,
-    Snackbar
+    Snackbar,
+    DisasterButton
   },
   props: [],
   data: () => ({
@@ -1055,6 +1057,12 @@ export default {
         .then(() => {
           this.$store.dispatch('alerts/getAlerts')
         })
+      this.clearSelected()
+    },
+    bulkMakeDisaster(payload) {
+      const ids = this.selected?.map(a => a.id)
+
+      this.$store.dispatch('alerts/makeDisaster', { ids, ...payload })
       this.clearSelected()
     },
     bulkAckAlert() {

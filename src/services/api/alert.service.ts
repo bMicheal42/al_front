@@ -1,6 +1,14 @@
 import api from './index'
 import axios from 'axios'
 
+interface MakeDisasterPayload {
+  ids: string[]
+  link: string
+  time: number
+  type: string
+  summary: string
+}
+
 export default {
   getAlert(alertId: string) {
     return api.get(`/alert/${alertId}`)
@@ -10,6 +18,9 @@ export default {
   },
   actionAlert(alertId: string, data: object) {
     return api.put(`/alert/${alertId}/action`, data)
+  },
+  makeDisaster(data: MakeDisasterPayload) {
+    return api.post('/alert/disaster', data)
   },
   moveAlerts(data: object, target: string | null) {
     return api.post(`/alerts/move/${target || 'new'}`, data)

@@ -4,7 +4,12 @@
       slot="activator"
       class="text-no-wrap"
     >
-      {{ value | date(displayMode, formatString) }}
+      <template v-if="customFormat">
+        {{ value | date(displayMode, customFormat) }}
+      </template>
+      <template v-else>
+        {{ value | date(displayMode, formatString) }}
+      </template>
     </span>
     <span>{{ value | date('utc', 'YYYY/MM/DD HH:mm:ss.SSS Z') }}</span>
   </v-tooltip>
@@ -19,7 +24,8 @@ moment.locale(i18n.locale)
 export default {
   props: {
     value: { type: String, required: true },
-    format: { type: String, default: 'mediumDate' }
+    format: { type: String, default: 'mediumDate' },
+    customFormat: { type: String, default: null }
   },
   computed: {
     displayMode() {

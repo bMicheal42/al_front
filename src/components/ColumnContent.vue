@@ -219,10 +219,6 @@
             </div>
           </v-tooltip>
           <div class="text-capitalize-first">
-            <span
-              v-if="hasDuplicates && !isChild"
-              v-html="getIncidentStats(item)"
-            />
             <a
               v-if="(hasDuplicates && !isChild) && computedZabbixLink"
               :href="computedZabbixLink"
@@ -257,6 +253,10 @@
                 v-html="formattedDescription"
               />
             </v-tooltip>
+            <span
+              v-if="hasDuplicates && !isChild"
+              v-html="getIncidentStats(item)"
+            />
             <span
               v-if="(hasDuplicates && !isChild)"
               class="copy-btn"
@@ -685,12 +685,14 @@ export default {
   display: inline-block;
   width: 16px;
   height: 18px;
-  background: #D40000;
+  background: grey;
   color: white;
   text-align: center;
   font-weight: 700;
   border-radius: 4px;
   margin-right: 2px;
+  margin-left: 5px;
+
 }
 div > a .zabbix-link {
   margin-left: 5px;

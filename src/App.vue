@@ -504,7 +504,10 @@
           </v-btn>
           <span>{{ $t('Close') }}</span>
         </v-tooltip>
-        <disaster-button @makeDisaster="bulkMakeDisaster" />
+        <disaster-button
+          :selected-incident="selectedIncident"
+          @makeDisaster="makeDisaster"
+        />
         
 
         <!-- FIXME TEMPORARY HIDDEN ACTION (its need?) -->
@@ -919,6 +922,13 @@ export default {
     selectedIncidents() {
       return this.selected.filter(a => !!a.attributes?.incident)
     },
+    selectedIncident() {
+      if (this.selectedIncidents?.length === 1 && this.selectedAlerts?.length === 0) {
+        return this.selectedIncidents[0]
+      }
+
+      return null
+    },
     selectedAlerts() {
       return this.selected.filter(a => !a.attributes?.incident)
     },
@@ -1059,8 +1069,8 @@ export default {
         })
       this.clearSelected()
     },
-    bulkMakeDisaster(payload) {
-      const ids = this.selected?.map(a => a.id)
+    makeDisaster(payload) {
+      const ids = [this.selectedIncident.id]
 
       this.$store.dispatch('alerts/makeDisaster', { ids, ...payload })
       this.clearSelected()
@@ -1222,7 +1232,6 @@ export default {
         target
       })
         .then(() => {
-          this.clearSelected()
           this.refresh()
         }).catch((err) => {
           // eslint-disable-next-line no-console

@@ -92,6 +92,9 @@ export const de = {
   Escalate: 'Eskalieren',
   ConfirmEscalation: 'Eskalation bestätigen',
   RestrictedMergeJira: 'Einschränkung beim Zusammenführen mehrerer in Jira geöffneter Warnungen',
+  AiDoneActions: 'Welche Aktionen haben Sie ausgeführt?',
+  SendResults: 'Ergebnisse senden',
+  FieldIsRequired: 'Feld ist erforderlich',
 
   // Alert notifications
   NewAlertRegistered: 'Neuer Alarm empfangen!',

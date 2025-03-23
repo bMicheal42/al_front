@@ -83,6 +83,11 @@
           {{ $t('You are strongly sure you want to declare a disaster?') }}
         </v-card-title>
         <v-card-text>
+          <div
+            class="font-weight-bold mb-4"
+          >
+            {{ $t('ATTENTION! All company management will be notified!') }}
+          </div>
           <div class="d-flex justify-end">
             <v-btn
               text

@@ -923,7 +923,7 @@ export default {
       return this.selected.filter(a => !!a.attributes?.incident)
     },
     selectedIncident() {
-      if (this.selectedIncidents?.length === 1 && this.selectedAlerts?.length === 0) {
+      if ((this.selectedIncidents?.length === 1 && ['fixing-by-24/7', 'observation', 'pending', 'escalated'].includes(this.selectedIncidents[0].status)) && this.selectedAlerts?.length === 0) {
         return this.selectedIncidents[0]
       }
 

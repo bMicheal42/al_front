@@ -263,7 +263,7 @@
 
       <v-toolbar
         v-if="selected.length > 0"
-        :color="isDark ? '#8e8e8e' : '#bcbcbc'"
+        :color="isDark ? 'rgb(97, 97, 97)' : 'rgb(238, 238, 238)'"
         class="mb-1"
       >
         <v-btn
@@ -357,7 +357,7 @@
             @click="moveAlerts()"
           >
             <v-icon
-              color="#FF0"
+              color="#f1c232"
               :medium="true"
             >
               fa-object-ungroup
@@ -378,7 +378,7 @@
             @click="moveAlerts()"
           >
             <v-icon
-              color="#FF0"
+              color="#f1c232"
               :medium="true"
             >
               fa-plus-square
@@ -400,7 +400,7 @@
           >
             <v-icon
               style="rotate: 90deg"
-              color="#FF0"
+              color="#f1c232"
               :medium="true"
             >
               fa-sitemap
@@ -442,10 +442,10 @@
             @click="bulkFalsePositive()"
           >
             <v-icon
-              color="#22F"
-              :size="32"
+              color="#0F0"
+              :size="28"
             >
-              fa-frown
+              fa-ban
             </v-icon>
           </v-btn>
           <span>{{ $t('FalsePositive') }}</span>
@@ -461,7 +461,7 @@
           >
             <v-icon
               color="#F00"
-              :size="32"
+              :size="28"
             >
               fa-bell
             </v-icon>
@@ -484,7 +484,7 @@
               color="#F00"
               :size="32"
             >
-              fa-bell
+              notifications_active
             </v-icon>
           </v-btn>
           <span>{{ $t('ConfirmEscalation') }}</span>
@@ -503,7 +503,7 @@
           >
             <v-icon
               color="#0F0"
-              :size="32"
+              :size="24"
             >
               fa-thumbs-up
             </v-icon>

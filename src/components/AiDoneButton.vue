@@ -12,9 +12,9 @@
         >
           <v-icon
             color="#0F0"
-            :large="true"
+            :size="32"
           >
-            fa-eye
+            build
           </v-icon>
         </v-btn>
       </template>

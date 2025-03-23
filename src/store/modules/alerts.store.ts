@@ -250,6 +250,9 @@ const actions = {
       timeout: timeout
     })
   },
+  makeDisaster(_, payload) {
+    return AlertsApi.makeDisaster(payload)
+  },
   move({commit, dispatch}, {movingObjects, target}) {
     return AlertsApi.moveAlerts(movingObjects, target).then(answer => {
       if (answer && answer.status === 'ok' && answer.updates) {

@@ -504,7 +504,11 @@
           </v-btn>
           <span>{{ $t('Close') }}</span>
         </v-tooltip>
-
+        <disaster-button
+          :selected-incident="selectedIncident"
+          @makeDisaster="makeDisaster"
+        />
+        
 
         <!-- FIXME TEMPORARY HIDDEN ACTION (its need?) -->
         <v-tooltip
@@ -715,7 +719,7 @@
 import Banner from '@/components/lib/Banner.vue'
 import ProfileMe from '@/components/auth/ProfileMe.vue'
 import Snackbar from '@/components/lib/Snackbar.vue'
-
+import DisasterButton from '@/components/AlertActions/DisasterButton.vue'
 import i18n from '@/plugins/i18n'
 
 export default {
@@ -723,7 +727,8 @@ export default {
   components: {
     Banner,
     ProfileMe,
-    Snackbar
+    Snackbar,
+    DisasterButton
   },
   props: [],
   data: () => ({
@@ -917,6 +922,13 @@ export default {
     selectedIncidents() {
       return this.selected.filter(a => !!a.attributes?.incident)
     },
+    selectedIncident() {
+      if ((this.selectedIncidents?.length === 1 && ['fixing-by-24/7', 'observation', 'pending', 'escalated'].includes(this.selectedIncidents[0].status)) && this.selectedAlerts?.length === 0) {
+        return this.selectedIncidents[0]
+      }
+
+      return null
+    },
     selectedAlerts() {
       return this.selected.filter(a => !a.attributes?.incident)
     },
@@ -1055,6 +1067,12 @@ export default {
         .then(() => {
           this.$store.dispatch('alerts/getAlerts')
         })
+      this.clearSelected()
+    },
+    makeDisaster(payload) {
+      const ids = [this.selectedIncident.id]
+
+      this.$store.dispatch('alerts/makeDisaster', { ids, ...payload })
       this.clearSelected()
     },
     bulkAckAlert() {
@@ -1214,7 +1232,6 @@ export default {
         target
       })
         .then(() => {
-          this.clearSelected()
           this.refresh()
         }).catch((err) => {
           // eslint-disable-next-line no-console

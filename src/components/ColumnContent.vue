@@ -3,13 +3,15 @@
     <span v-if="col === 'createTime'">
       <date-time
         :value="item.createTime"
-        format="shortTime"
+        format="mediumDate"
+        custom-format="YYYY-MM-DD HH:mm:ss"
       />
     </span>
     <span v-if="col === 'lastReceiveTime'">
       <date-time
         :value="calculatedLastReceiveTime"
-        format="shortTime"
+        format="mediumDate"
+        custom-format="YYYY-MM-DD HH:mm:ss"
       />
     </span>
     <span v-if="col === 'resource'">
@@ -142,22 +144,6 @@
     </span>
     <span v-if="col === 'text'">
       <div style="display: flex; gap: 4px;">
-        <button
-          v-if="hasDuplicates && !isChild"
-          class="button-show-details"
-          :class="{'day-mode': !isDark, 'night-mode': isDark}"
-          @click.stop.prevent="toggleExpand(item.id)"
-        >
-          <span
-            class="circle-plus closed"
-            :class="{'opened': isExpanded}"
-          >
-            <span class="circle">
-              <span class="line horizontal" />
-              <span class="line vertical" />
-            </span>
-          </span>
-        </button>
         <div :class="['incident-info-wrapper', hasDuplicates && !isChild ? '' : 'incident-info-wrapper-full']">
           <v-tooltip
             bottom
@@ -233,10 +219,6 @@
             </div>
           </v-tooltip>
           <div class="text-capitalize-first">
-            <span
-              v-if="hasDuplicates && !isChild"
-              v-html="getIncidentStats(item)"
-            />
             <a
               v-if="(hasDuplicates && !isChild) && computedZabbixLink"
               :href="computedZabbixLink"
@@ -271,6 +253,10 @@
                 v-html="formattedDescription"
               />
             </v-tooltip>
+            <span
+              v-if="hasDuplicates && !isChild"
+              v-html="getIncidentStats(item)"
+            />
             <span
               v-if="(hasDuplicates && !isChild)"
               class="copy-btn"
@@ -699,12 +685,14 @@ export default {
   display: inline-block;
   width: 16px;
   height: 18px;
-  background: #D40000;
+  background: grey;
   color: white;
   text-align: center;
   font-weight: 700;
   border-radius: 4px;
   margin-right: 2px;
+  margin-left: 5px;
+
 }
 div > a .zabbix-link {
   margin-left: 5px;

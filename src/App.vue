@@ -1214,7 +1214,6 @@ export default {
         target
       })
         .then(() => {
-          this.clearSelected()
           this.refresh()
         }).catch((err) => {
           // eslint-disable-next-line no-console

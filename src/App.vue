@@ -560,7 +560,7 @@
           <span>{{ $t('Delete') }}</span>
         </v-tooltip>
 
-        <v-menu
+        <!-- <v-menu
           bottom
           left
         >
@@ -589,7 +589,7 @@
               <v-list-tile-title>{{ action | splitCaps }}</v-list-tile-title>
             </v-list-tile>
           </v-list>
-        </v-menu>
+        </v-menu> -->
 
         <v-spacer />
 

@@ -92,6 +92,9 @@ export const ru = {
   Escalate: 'Эскалация',
   ConfirmEscalation: 'Подтвердить эскалацию',
   RestrictedMergeJira: 'Запрещено смешивать несколько алертов заведенных в джиру',
+  AiDoneActions: 'Какие действия вы выполнили?',
+  SendResults: 'Отправить результаты',
+  FieldIsRequired: 'Поле обязательно для заполнения',
 
   // Alert notifications - Оповещения об алертах
   NewAlertRegistered: 'Получен новый алерт!',

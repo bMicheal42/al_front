@@ -31,6 +31,8 @@
           :data-selected="rowSelected"
           data-incident
           @click="handleRowClick(item)"
+          @mouseenter="hoveredRow = item.id"
+          @mouseleave="hoveredRow = null"
         >
           <td
             class="text-no-wrap"
@@ -68,6 +70,142 @@
               :last-note="lastNote"
               @click.stop
             />
+          </td>
+          <!-- actions on hover -->
+
+
+
+       
+          <td class="actions-cell">
+            <div 
+              v-if="hoveredRow === item.id"
+              class="actions-container"
+            >
+              <!-- Кнопка "Ack" (для открытых групп) -->
+              <v-btn
+                v-if="isOpen(item.status)"
+                flat
+                icon
+                small
+                class="btn--plain pa-0 ma-0 mx-1"
+                title="Ack"
+                @click.stop="handleButtonClick('ack', item.id)"
+              >
+                <v-icon color="#0F0">
+                  check
+                </v-icon>
+              </v-btn>
+      
+              <!-- Кнопка "Take In Fixing" (для подтвержденных групп) -->
+              <v-btn
+                v-if="item.status === 'ack'"
+                flat
+                icon
+                small
+                class="btn--plain pa-0 ma-0 mx-1"
+                title="Take In Fixing"
+                @click.stop="handleButtonClick('inc', item.id)"
+              >
+                <v-icon
+                  color="#F00"
+                  :size="18"
+                >
+                  fa-fire
+                </v-icon>
+              </v-btn>
+      
+              <!-- Кнопка "False Positive" (для групп в определенных статусах) -->
+              <v-btn
+                v-if="!['false-positive', 'closed', 'open'].includes(item.status)"
+                flat
+                icon
+                small
+                class="btn--plain pa-0 ma-0 mx-1"
+                title="False Positive"
+                @click.stop="handleButtonClick('false-positive', item.id)"
+              >
+                <v-icon
+                  color="#22F"
+                  :size="18"
+                >
+                  fa-frown
+                </v-icon>
+              </v-btn>
+      
+              <!-- Кнопка "Escalate" (для групп в стадии фиксинга или наблюдения) -->
+              <v-btn
+                v-if="['fixing-by-24/7', 'observation'].includes(item.status)"
+                flat
+                icon
+                small
+                class="btn--plain pa-0 ma-0 mx-1"
+                title="Escalate"
+                @click.stop="handleButtonClick('esc', item.id)"
+              >
+                <v-icon
+                  color="#F00"
+                  :size="18"
+                >
+                  fa-bell
+                </v-icon>
+              </v-btn>
+      
+              <!-- Кнопка "Confirm Escalation" (для групп в ожидании, только для админов) -->
+              <v-btn
+                v-if="item.status === 'pending'"
+                v-has-perms="'admin'"
+                flat
+                icon
+                small
+                class="btn--plain pa-0 ma-0 mx-1"
+                title="Confirm Escalation"
+                @click.stop="handleButtonClick('escalation', item.id)"
+              >
+                <v-icon
+                  color="#F00"
+                  :size="18"
+                >
+                  fa-bell
+                </v-icon>
+              </v-btn>
+      
+              <!-- Кнопка "Close" (для групп, которые не закрыты, только для админов) -->
+              <v-btn
+                v-if="item.status !== 'closed'"
+                v-has-perms="'admin'"
+                flat
+                icon
+                small
+                class="btn--plain pa-0 ma-0 mx-1"
+                title="Close"
+                @click.stop="handleButtonClick('close', item.id)"
+              >
+                <v-icon
+                  color="#0F0"
+                  :size="18"
+                >
+                  fa-thumbs-up
+                </v-icon>
+              </v-btn>
+      
+              <!-- Кнопка "Undo" (только для админов) -->
+              <v-btn
+                v-has-perms="'admin'"
+                flat
+                icon
+                small
+                class="btn--plain pa-0 ma-0 mx-1"
+                title="Undo"
+                @click.stop="handleButtonClick('undo', item.id)"
+              >
+                <v-icon
+                  color="#f1c232"
+                  :size="18"
+                >
+                  undo
+                </v-icon>
+              </v-btn>
+            </div>
           </td>
         </tr>
         <!--NESTED TABLE START HERE-->
@@ -163,7 +301,7 @@
                           >
                             <v-icon
                               :size="22"
-                              color="#FF0"
+                              color="#f1c232"
                             >
                               undo
                             </v-icon>
@@ -237,6 +375,7 @@ export default {
     }
   },
   data: vm => ({
+    hoveredRow: null,
     internalPagination: { sortBy: 'createTime', descending: true, rowsPerPage: 10 },
     search: '',
     expanded: [],
@@ -757,6 +896,26 @@ export default {
 </script>
 
 <style>
+
+/* start actions on hover */
+.actions-cell {
+  width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.actions-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  transition: opacity 0.2s ease;
+}
+
+.btn--plain.mx-1 {
+  margin-left: 4px !important;
+  margin-right: 4px !important;
+}
+/* end actions on hover */
 
 .red-dot {
   display: inline-block;

@@ -1058,6 +1058,13 @@ export default {
       this.clearSelected()
     },
     bulkAckAlert() {
+      // FIXME Use when backend will be ready for it :]
+      // this.$store.dispatch('alerts/takeBulkAction', [
+      //   this.selectedOpen.map(a => a.id),
+      //   'ack',
+      //   '',
+      //   this.ackTimeout
+      // ])
       this.selectedOpen.forEach(alert => {
         this.$store
           .dispatch('alerts/takeAction', [

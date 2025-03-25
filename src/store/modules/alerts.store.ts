@@ -250,6 +250,14 @@ const actions = {
       timeout: timeout
     })
   },
+  takeBulkAction({commit, dispatch}, [alertIds, action, text, timeout]) {
+    return AlertsApi.bulkActionAlerts({
+      alert_ids: alertIds,
+      action: action,
+      text: text,
+      timeout: timeout
+    })
+  },
   move({commit, dispatch}, {movingObjects, target}) {
     return AlertsApi.moveAlerts(movingObjects, target).then(answer => {
       if (answer && answer.status === 'ok' && answer.updates) {

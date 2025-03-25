@@ -10,7 +10,7 @@
       <v-btn-toggle
         v-model="currentSeverity"
         class="mb-4"
-        style="width: 400px"
+        style="width: 480px"
         mandatory
       >
         <v-btn
@@ -20,14 +20,14 @@
           large
           @click="setSeverity('total')"
         >
-          Total
+          {{ $i18n.t('Total') }}
         </v-btn>
         <v-btn
-          value="critical"
-          :depressed="currentSeverity !== 'critical'"
-          :color="`${currentSeverity === 'critical' ? '#FF2749' : ''}`"
+          value="5"
+          :depressed="currentSeverity !== '5'"
+          :color="`${currentSeverity === '5' ? '#FF2749' : ''}`"
           large
-          @click="setSeverity('critical')"
+          @click="setSeverity('5')"
         >
           <span class="icon-container">
             <img
@@ -37,14 +37,14 @@
               height="18"
             >
           </span>
-          Critical
+          {{ $i18n.t('Critical') }}
         </v-btn>
         <v-btn
-          value="high"
-          :depressed="currentSeverity !== 'high'"
-          :color="`${currentSeverity === 'high' ? '#ffa726' : ''}`"
+          value="4"
+          :depressed="currentSeverity !== '4'"
+          :color="`${currentSeverity === '4' ? '#ffa726' : ''}`"
           large
-          @click="setSeverity('high')"
+          @click="setSeverity('4')"
         >
           <span class="icon-container">
             <img
@@ -54,14 +54,14 @@
               height="18"
             >
           </span>
-          High
+          {{ $i18n.t('High') }}
         </v-btn>
         <v-btn
-          value="medium"
-          :depressed="currentSeverity !== 'medium'"
-          :color="`${currentSeverity === 'medium' ? '#00B872' : ''}`"
+          value="3"
+          :depressed="currentSeverity !== '3'"
+          :color="`${currentSeverity === '3' ? '#00B872' : ''}`"
           large
-          @click="setSeverity('medium')"
+          @click="setSeverity('3')"
         >
           <span class="icon-container">
             <img
@@ -71,7 +71,7 @@
               height="18"
             >
           </span>
-          Medium
+          {{ $i18n.t('Medium') }}
         </v-btn>
       </v-btn-toggle>
       <v-layout style="gap: 20px; flex-wrap: nowrap; width: 500px;">
@@ -112,7 +112,10 @@
       </v-btn>
     </v-layout>
     <loading-icon v-if="!data && loading" />
-    <v-layout v-if="data" style="gap: 20px; flex-wrap: wrap">
+    <v-layout
+      v-if="data"
+      style="gap: 20px; flex-wrap: wrap"
+    >
       <v-flex
         v-for="(table, index) of tables"
         :key="index"
@@ -171,7 +174,6 @@ export default {
       return this.$store.getters.getPreference('isDark')
     },
     timezone() {
-      console.log('this.$store.state.prefs.timezone', this.$store.state.prefs.timezone)
       return this.$store.state.prefs.timezone
     }
   },
@@ -234,9 +236,10 @@ export default {
     },
     createTable(title, rows) {
       const titles = {
-        'MTTD': i18n.t('MTTD (Mean Time to Detect)'),
-        'MTTU': i18n.t('MTTU (Mean Time to Understand)'),
-        'MTTR': i18n.t('MTTR (Mean Time to Resolve)'),
+        'Counts': i18n.t('Counts'),
+        'MTTD': i18n.t('MTTD'),
+        'MTTU': i18n.t('MTTU'),
+        'MTTR': i18n.t('MTTR'),
       }
       return {
         title: titles[title] || title,
@@ -257,6 +260,8 @@ export default {
           rows.push({
             username: username,
             alertsCount: severityData[username].alertsCount,
+            wasGrouped: user.wasGrouped,
+            wasNotGrouped: user.wasNotGrouped,
             incidents: user.incidents,
             duplicates: user.duplicates,
             falsePositives: user.falsePositives,
@@ -267,8 +272,10 @@ export default {
       if (severityData['all']) {
         const allUser = severityData['all'].counts
         rows.push({
-          username: 'all',
+          username: i18n.t('All'),
           alertsCount: severityData['all'].alertsCount,
+          wasGrouped: allUser.wasGrouped,
+          wasNotGrouped: allUser.wasNotGrouped,
           incidents: allUser.incidents,
           duplicates: allUser.duplicates,
           falsePositives: allUser.falsePositives,
@@ -297,7 +304,7 @@ export default {
       if (severityData['all']) {
         const allUser = severityData['all'].mttd
         rows.push({
-          username: 'all',
+          username: i18n.t('All'),
           ackCount: allUser.ackCount,
           ackPercent: allUser.ackPercent,
           ackInSla: allUser.ackInSla,
@@ -327,7 +334,7 @@ export default {
       if (severityData['all']) {
         const allUser = severityData['all'].mttr
         rows.push({
-          username: 'all',
+          username: i18n.t('All'),
           totalAlerts: allUser.totalAlerts,
           resolvedAlerts: allUser.resolvedAlerts,
           resolvedPercent: allUser.resolvedPercent,
@@ -345,7 +352,7 @@ export default {
           const user = severityData[username].mttu
           rows.push({
             username: username,
-            totalIncidents: user.totalIncidents,
+            // totalIncidents: user.totalIncidents,
             confirmedProblems: user.confirmedProblems,
             confirmedProblemsMttuPerc75: user.confirmedProblemsMttuPerc75,
             confirmedProblemsMttuPerc90: user.confirmedProblemsMttuPerc90,
@@ -358,8 +365,8 @@ export default {
       if (severityData['all']) {
         const allUser = severityData['all'].mttu
         rows.push({
-          username: 'all',
-          totalIncidents: allUser.totalIncidents,
+          username: i18n.t('All'),
+          // totalIncidents: allUser.totalIncidents,
           confirmedProblems: allUser.confirmedProblems,
           confirmedProblemsMttuPerc75: allUser.confirmedProblemsMttuPerc75,
           confirmedProblemsMttuPerc90: allUser.confirmedProblemsMttuPerc90,
@@ -376,6 +383,8 @@ export default {
         return [
           {text: i18n.t('Username'), value: 'username', align: 'center', sortable: true, width: 'auto' },
           {text: i18n.t('Alerts Count'), value: 'alertsCount', align: 'center', sortable: true, width: 'auto'},
+          {text: i18n.t('Was Grouped'), value: 'wasGrouped', align: 'center', sortable: true, width: 'auto'},
+          {text: i18n.t('Wasn\'t Grouped'), value: 'wasNotGrouped', align: 'center', sortable: true, width: 'auto'},
           {text: i18n.t('Incidents'), value: 'incidents', align: 'center', sortable: true, width: 'auto'},
           {text: i18n.t('Duplicates'), value: 'duplicates', align: 'center', sortable: true, width: 'auto'},
           {text: i18n.t('False Positives'), value: 'falsePositives', align: 'center', sortable: true, width: 'auto'},
@@ -387,9 +396,9 @@ export default {
           {text: i18n.t('Ack Count'), value: 'ackCount', align: 'center', sortable: true, width: 'auto'},
           {text: i18n.t('Ack Percent'), value: 'ackPercent', align: 'center', sortable: true, width: 'auto'},
           {text: i18n.t('Ack In SLA'), value: 'ackInSla', align: 'center', sortable: true, width: 'auto'},
-          {text: i18n.t('75th Percentile'), value: 'perc75', align: 'center', sortable: true, width: 'auto'},
-          {text: i18n.t('90th Percentile'), value: 'perc90', align: 'center', sortable: true, width: 'auto'},
-          {text: i18n.t('99th Percentile'), value: 'perc99', align: 'center', sortable: true, width: 'auto'}
+          {text: i18n.t('75thPercentile'), value: 'perc75', align: 'center', sortable: true, width: 'auto'},
+          {text: i18n.t('90thPercentile'), value: 'perc90', align: 'center', sortable: true, width: 'auto'},
+          {text: i18n.t('99thPercentile'), value: 'perc99', align: 'center', sortable: true, width: 'auto'}
         ]
       case 'MTTR':
         return [
@@ -397,19 +406,19 @@ export default {
           {text: i18n.t('Total Alerts'), value: 'totalAlerts', align: 'center', sortable: true, width: 'auto'},
           {text: i18n.t('Resolved Alerts'), value: 'resolvedAlerts', align: 'center', sortable: true, width: 'auto'},
           {text: i18n.t('Resolved Percent'), value: 'resolvedPercent', align: 'center', sortable: true, width: 'auto'},
-          {text: i18n.t('50th Percentile'), value: 'resolvedMttrPerc50', align: 'center', sortable: true, width: 'auto'},
-          {text: i18n.t('90th Percentile'), value: 'resolvedMttrPerc90', align: 'center', sortable: true, width: 'auto'},
+          {text: i18n.t('50thPercentile'), value: 'resolvedMttrPerc50', align: 'center', sortable: true, width: 'auto'},
+          {text: i18n.t('90thPercentile'), value: 'resolvedMttrPerc90', align: 'center', sortable: true, width: 'auto'},
         ]
       case 'MTTU':
         return [
           {text: i18n.t('Username'), value: 'username', align: 'center', sortable: true, width: 'auto' },
-          {text: i18n.t('Total Incidents'), value: 'totalIncidents', align: 'center', sortable: true, width: 'auto'},
-          {text: i18n.t('Confirmed Problems'), value: 'confirmedProblems', align: 'center', sortable: true, width: 'auto'},
-          {text: i18n.t('75th Percentile'), value: 'confirmedProblemsMttuPerc75', align: 'center', sortable: true, width: 'auto'},
-          {text: i18n.t('90th Percentile'), value: 'confirmedProblemsMttuPerc90', align: 'center', sortable: true, width: 'auto'},
+          // {text: i18n.t('Total Incidents'), value: 'totalIncidents', align: 'center', sortable: true, width: 'auto'},
+          {text: i18n.t('Incidents'), value: 'confirmedProblems', align: 'center', sortable: true, width: 'auto'},
+          {text: i18n.t('75thPercentile'), value: 'confirmedProblemsMttuPerc75', align: 'center', sortable: true, width: 'auto'},
+          {text: i18n.t('90thPercentile'), value: 'confirmedProblemsMttuPerc90', align: 'center', sortable: true, width: 'auto'},
           {text: i18n.t('False Positives'), value: 'falsePositives', align: 'center', sortable: true, width: 'auto'},
-          {text: i18n.t('75th Percentile (FP)'), value: 'falsePositivesMttuPerc75', align: 'center', sortable: true, width: 'auto'},
-          {text: i18n.t('90th Percentile (FP)'), value: 'falsePositivesMttuPerc90', align: 'center', sortable: true, width: 'auto'},
+          {text: i18n.t('75thPercentileFP'), value: 'falsePositivesMttuPerc75', align: 'center', sortable: true, width: 'auto'},
+          {text: i18n.t('90thPercentileFP'), value: 'falsePositivesMttuPerc90', align: 'center', sortable: true, width: 'auto'},
         ]
       }
     },
@@ -491,7 +500,11 @@ export default {
 }
 .analytics ::v-deep(.v-datatable th) {
   white-space: normal; word-break: break-word;
-  padding: 2px 10px 2px 4px;
+  padding: 2px 2px 2px 0;
+}
+.analytics ::v-deep(.v-datatable th:last-child) {
+  white-space: normal; word-break: break-word;
+  padding: 2px 10px 2px 2px;
 }
 .icon-container {
   transform: translate(-6px, 2px);

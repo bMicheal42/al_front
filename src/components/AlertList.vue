@@ -163,7 +163,7 @@
                           >
                             <v-icon
                               :size="22"
-                              color="#FF0"
+                              color="#f1c232"
                             >
                               undo
                             </v-icon>

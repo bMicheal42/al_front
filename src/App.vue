@@ -1072,7 +1072,7 @@ export default {
       this.makeBulkAction({ items: this.selectedForFalsePositive, timeout: this.ackTimeout, action: 'false-positive' })
     },
     bulkEscalate() {
-      this.makeBulkAction({ items: this.selectedForEscalation, timeout: this.ackTimeout, action: 'escalation' })
+      this.makeBulkAction({ items: this.selectedForEscalation, timeout: this.ackTimeout, action: 'esc' })
     },
     bulkConfirmEscalation() {
       this.makeBulkAction({ items: this.selectedForConfirmEscalation, timeout: this.ackTimeout, action: 'escalation' })

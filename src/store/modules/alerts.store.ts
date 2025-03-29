@@ -203,6 +203,8 @@ const actions = {
       commit('SET_ABORT_CONTROLLER', controller)
     }
 
+    commit('ABORT_QUERY', 'getAlerts')
+
     return AlertsApi.getAlerts(params, setAbortToken)
       .then(({alerts, total, pageSize, incidentTotal}) => {
         return commit('SET_ALERTS', [alerts, total, pageSize, incidentTotal])

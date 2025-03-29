@@ -1066,7 +1066,7 @@ export default {
       this.makeBulkAction({ items: this.selectedOpen, timeout: this.ackTimeout, action: 'ack' })
     },
     bulkAidoneAlert() {
-      this.makeBulkAction({ items: this.selectedFixing, timeout: this.ackTimeout, action: 'aidone' })
+      this.makeBulkAction({ items: this.selectedFixing.filter(a => a.attributes?.incident), timeout: this.ackTimeout, action: 'aidone' })
     },
     bulkFalsePositive() {
       this.makeBulkAction({ items: this.selectedForFalsePositive, timeout: this.ackTimeout, action: 'false-positive' })

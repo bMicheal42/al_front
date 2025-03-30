@@ -160,7 +160,8 @@ export default {
     selectedId: null,
     selectedItem: {},
     sidesheet: false,
-    timer: null
+    timer: null,
+    unsubscribeToAlertsUpdate: null
   }),
   computed: {
     audioURL() {
@@ -311,10 +312,18 @@ export default {
     this.cancelTimer()
     this.abortGetAlerts()
     this.refreshAlerts()
+
+    this.unsubscribeToAlertsUpdate = this.$store.subscribe((action, state) => {
+      if (action.type === 'alerts/SET_ALERTS') {
+        this.cancelTimer()
+        this.scheduleRefresh()
+      }
+    })
   },
   beforeDestroy() {
     this.cancelTimer()
     this.abortGetAlerts()
+    this.unsubscribeToAlertsUpdate()
   },
   methods: {
     setSearch(query) {
@@ -365,12 +374,17 @@ export default {
       // this.$router.push({ path: `/alert/${item.id}` })
     },
     refreshAlerts() {
-      if (this.abortController) return
+      if (this.abortController) {
+        return
+      }
+
       this.getAlerts()
         .then(() => {
           this.isNewOpenAlerts && this.playSound()
-          this.timer = setTimeout(this.refreshAlerts, this.refreshInterval)
         })
+    },
+    scheduleRefresh() {
+      this.timer = setTimeout(this.refreshAlerts, this.refreshInterval)
     },
     cancelTimer() {
       if (this.timer) {

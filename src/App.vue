@@ -409,7 +409,13 @@
           <span>{{ $t('MergeIncident') }}</span>
         </v-tooltip>
 
-        <v-tooltip bottom>
+        <ai-done-button 
+          :selected-alerts="selectedFixing"
+          :ack-timeout="ackTimeout"
+          @done-completed="handleAiDoneCompleted"
+        />
+        <!-- TODO: remove after AiDoneButton is tested with backend integration -->
+        <!-- <v-tooltip bottom>
           <v-btn
             slot="activator"
             icon
@@ -425,7 +431,7 @@
             </v-icon>
           </v-btn>
           <span>{{ $t('Aidone') }}</span>
-        </v-tooltip>
+        </v-tooltip> -->
 
         <v-tooltip bottom>
           <v-btn
@@ -715,6 +721,7 @@
 import Banner from '@/components/lib/Banner.vue'
 import ProfileMe from '@/components/auth/ProfileMe.vue'
 import Snackbar from '@/components/lib/Snackbar.vue'
+import AiDoneButton from '@/components/AiDoneButton.vue'
 
 import i18n from '@/plugins/i18n'
 
@@ -723,7 +730,8 @@ export default {
   components: {
     Banner,
     ProfileMe,
-    Snackbar
+    Snackbar,
+    AiDoneButton
   },
   props: [],
   data: () => ({
@@ -1064,6 +1072,10 @@ export default {
     },
     bulkAckAlert() {
       this.makeBulkAction({ items: this.selectedOpen, timeout: this.ackTimeout, action: 'ack' })
+    },
+    handleAiDoneCompleted() {
+      // clear selected alerts after aidone
+      this.clearSelected()
     },
     bulkAidoneAlert() {
       this.makeBulkAction({ items: this.selectedFixing.filter(a => a.attributes?.incident), timeout: this.ackTimeout, action: 'aidone' })

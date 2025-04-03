@@ -497,6 +497,7 @@ export default {
     },
     close() {
       this.$emit('close')
+      this.$store.dispatch('alerts/getAlerts')
     }
   }
 }

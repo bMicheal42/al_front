@@ -37,7 +37,7 @@
       flat
       class="pl-3"
     >
-      <v-flex
+      <!-- <v-flex
         sm6
         md4
       >
@@ -59,7 +59,7 @@
             />
           </v-layout>
         </v-card-actions>
-      </v-flex>
+      </v-flex> -->
     </v-card>
     
     <v-card

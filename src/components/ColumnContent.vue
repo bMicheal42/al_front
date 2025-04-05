@@ -165,7 +165,6 @@
                 </a>
                 <v-tooltip
                   v-if="!(hasDuplicates && !isChild) && item.attributes?.zabbix_description"
-                  v-model="showDescription"
                   bottom
                   tag="span"
                 >
@@ -174,7 +173,7 @@
                       style="width: 20px; cursor: pointer; margin-left: 2px"
                       :color="isDark ? '#f4f4f4' : '#706e6e'"
                       small
-                      @click.stop="onShowDescription"
+                      v-on="onDescriptionTooltip"
                     >
                       info
                     </v-icon>

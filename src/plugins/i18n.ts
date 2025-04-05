@@ -25,8 +25,9 @@ if (language.length > 2) {
   language = language.split('-')[0]
   language = language.split('_')[0]
 }
-const localSettings = localStorage.getItem('prefs')
-const selectedLanguage = localSettings ? JSON.parse(localSettings)?.languagePref : false
+// const localSettings = localStorage.getItem('prefs')
+// const selectedLanguage = localSettings ? JSON.parse(localSettings)?.languagePref : false
+const selectedLanguage = 'en'
 // variable i18n for translation
 const i18n = new VueI18n({
   locale: selectedLanguage || language, // use locale from local storage or navigator

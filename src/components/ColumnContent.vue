@@ -102,7 +102,12 @@
             <v-chip
               label
               small
-              :style="{ backgroundColor: computedJiraStatusColor, fontSize: '12px', fontWeight: 700 }"
+              :style="{
+                backgroundColor: computedJiraStatusColor,
+                fontSize: '12px',
+                fontWeight: 700,
+                color: '#FFFFFF'
+              }"
             >
               {{ item.attributes['jira_key'] }}
             </v-chip>

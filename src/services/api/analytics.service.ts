@@ -19,11 +19,23 @@ const formatCsvModel = (row) => ({
   ackned_time: row?.ack_time ? row.ack_time.slice(0, 19).replace('T', ' ') : '',
   MTTD: row?.alert_ttd_sec ? row.alert_ttd_sec : '',
   acknowledged_user: row.acked_by ? row.acked_by : '',
-  inc_user: row?.jira_url ? row.acked_by : '',
+  inc_user: row?.jira_url ? (row.acked_by || '') : '',
   inc_time: row?.jira_url ? (row?.fixing_time ? row.fixing_time.slice(0, 19).replace('T', ' ') : '') : '',
   inc: row?.jira_url ? row?.jira_url : '',
-  dupl_user: '', // заглушка
-  dupl_time: '', // заглушка
+  dupl_user: row?.incident
+      ? ''
+      : (
+          row?.resolve_time
+              ? (row?.parent?.jira_url ? (row?.acked_by || row?.parent?.acked_by || '') : '')
+              : ''
+      ),
+  dupl_time: row?.incident
+      ? ''
+      : (
+          row?.resolve_time
+              ? (row?.parent?.jira_url ? (row?.parent?.fixing_time ? row?.parent?.fixing_time.slice(0, 19).replace('T', ' ') : '') : '')
+              : ''
+      ),
   dupl: (
       row?.incident
           ? ''
@@ -36,9 +48,9 @@ const formatCsvModel = (row) => ({
   false_pos_user: row?.false_positive_time ? (row?.acked_by ? row?.acked_by : '') : '',
   false_pos_time: row?.false_positive_time ? row.false_positive_time.slice(0, 19).replace('T', ' ') : '',
   false_pos: row?.false_positive_time ? 1 : 0,
-  flap_user: '', // заглушка
-  flap_time: '', // заглушка
-  flap: '', // заглушка
+  flap_user: row?.alert_ttr_sec < 300 ? (row?.acked_by || '') : '',
+  flap_time: row?.resolve_time ? row.resolve_time.slice(0, 19).replace('T', ' ') : '',
+  flap: row?.alert_ttr_sec < 300 ? 1 : 0,
   resolved_time: row?.resolve_time ? row.resolve_time.slice(0, 19).replace('T', ' ') : '',
   'MTTR(sec)': row?.alert_ttr_sec ? row.alert_ttr_sec : '',
   project_group: row?.project_group ? row.project_group : '',
@@ -47,7 +59,8 @@ const formatCsvModel = (row) => ({
       ? `https://monitoring.sdventures.com/tr_events.php?triggerid=${row.zabbix_trigger_id}&eventid=${row.zabbix_id}`
       : '',
   MTTU: (row?.inc_ttu_fixing_sec || row?.inc_ttu_false_positive_sec || ''),
-  alerta_url: row?.id ? `http://zabbix.npdev.lan:8081/alert/${row.id}` : ''
+  was_incident: row?.was_incident,
+  alerta_url: row?.id ? `${ location.origin || 'http://zabbix.npdev.lan:8081' }/alert/${row.id}` : ''
 })
 
 const transformRaw = raw => {

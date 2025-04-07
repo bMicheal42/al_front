@@ -11,6 +11,9 @@ export default {
   actionAlert(alertId: string, data: object) {
     return api.put(`/alert/${alertId}/action`, data)
   },
+  bulkActionAlerts(data: object) {
+    return api.put('/_bulk/alerts/action', data)
+  },
   moveAlerts(data: object, target: string | null) {
     return api.post(`/alerts/move/${target || 'new'}`, data)
   },

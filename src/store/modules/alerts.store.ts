@@ -119,6 +119,7 @@ const mutations = {
   },
   SET_FILTER(state, filter): any {
     state.filter = Object.assign({}, state.filter, filter)
+    state.pagination.page = 1
   },
   SET_PAGINATION(state, pagination) {
     state.pagination = Object.assign({}, state.pagination, pagination)
@@ -203,6 +204,8 @@ const actions = {
       commit('SET_ABORT_CONTROLLER', controller)
     }
 
+    commit('ABORT_QUERY', 'getAlerts')
+
     return AlertsApi.getAlerts(params, setAbortToken)
       .then(({alerts, total, pageSize, incidentTotal}) => {
         return commit('SET_ALERTS', [alerts, total, pageSize, incidentTotal])
@@ -245,6 +248,14 @@ const actions = {
   },
   takeAction({commit, dispatch}, [alertId, action, text, timeout]) {
     return AlertsApi.actionAlert(alertId, {
+      action: action,
+      text: text,
+      timeout: timeout
+    })
+  },
+  takeBulkAction({commit, dispatch}, [alertIds, action, text, timeout]) {
+    return AlertsApi.bulkActionAlerts({
+      alert_ids: alertIds,
       action: action,
       text: text,
       timeout: timeout

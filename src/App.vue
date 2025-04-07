@@ -263,7 +263,7 @@
 
       <v-toolbar
         v-if="selected.length > 0"
-        :color="isDark ? '#8e8e8e' : '#bcbcbc'"
+        :color="isDark ? 'rgb(97, 97, 97)' : 'rgb(238, 238, 238)'"
         class="mb-1"
       >
         <v-btn
@@ -357,7 +357,7 @@
             @click="moveAlerts()"
           >
             <v-icon
-              color="#FF0"
+              color="#f1c232"
               :medium="true"
             >
               fa-object-ungroup
@@ -378,7 +378,7 @@
             @click="moveAlerts()"
           >
             <v-icon
-              color="#FF0"
+              color="#f1c232"
               :medium="true"
             >
               fa-plus-square
@@ -400,7 +400,7 @@
           >
             <v-icon
               style="rotate: 90deg"
-              color="#FF0"
+              color="#f1c232"
               :medium="true"
             >
               fa-sitemap
@@ -419,9 +419,9 @@
           >
             <v-icon
               color="#0F0"
-              :large="true"
+              :size="32"
             >
-              fa-eye
+              build
             </v-icon>
           </v-btn>
           <span>{{ $t('Aidone') }}</span>
@@ -436,10 +436,10 @@
             @click="bulkFalsePositive()"
           >
             <v-icon
-              color="#22F"
-              :size="32"
+              color="#0F0"
+              :size="28"
             >
-              fa-frown
+              fa-ban
             </v-icon>
           </v-btn>
           <span>{{ $t('FalsePositive') }}</span>
@@ -455,7 +455,7 @@
           >
             <v-icon
               color="#F00"
-              :size="32"
+              :size="28"
             >
               fa-bell
             </v-icon>
@@ -478,7 +478,7 @@
               color="#F00"
               :size="32"
             >
-              fa-bell
+              notifications_active
             </v-icon>
           </v-btn>
           <span>{{ $t('ConfirmEscalation') }}</span>
@@ -497,7 +497,7 @@
           >
             <v-icon
               color="#0F0"
-              :size="32"
+              :size="24"
             >
               fa-thumbs-up
             </v-icon>
@@ -560,7 +560,7 @@
           <span>{{ $t('Delete') }}</span>
         </v-tooltip>
 
-        <v-menu
+        <!-- <v-menu
           bottom
           left
         >
@@ -589,7 +589,7 @@
               <v-list-tile-title>{{ action | splitCaps }}</v-list-tile-title>
             </v-list-tile>
           </v-list>
-        </v-menu>
+        </v-menu> -->
 
         <v-spacer />
 
@@ -1050,106 +1050,46 @@ export default {
         this.$store.dispatch('alerts/getAlerts')
       })
     },
-    takeInFixingBy24Per7() { // FIXME REVIEW ON OPER-14748
-      Promise.all(this.selectedAcknowledgedIncidents.map(a => this.$store.dispatch('alerts/takeAction', [a.id, 'inc', ''])))
+    makeBulkAction({ items, timeout = this.ackTimeout, action = 'ack', clearSelected = true }) {
+      Promise.all(items.map(a => this.$store.dispatch('alerts/takeAction', [a.id, action, '', timeout])))
         .then(() => {
+          if (clearSelected) {
+            this.clearSelected()
+          }
           this.$store.dispatch('alerts/getAlerts')
         })
-      this.clearSelected()
+    },
+    takeInFixingBy24Per7() {
+      this.makeBulkAction({ items: this.selectedAcknowledgedIncidents, timeout: this.ackTimeout, action: 'inc' })
     },
     bulkAckAlert() {
-      this.selectedOpen.forEach(alert => {
-        this.$store
-          .dispatch('alerts/takeAction', [
-            alert.id,
-            'ack',
-            '',
-            this.ackTimeout
-          ])
-      })
-      this.clearSelected()
+      this.makeBulkAction({ items: this.selectedOpen, timeout: this.ackTimeout, action: 'ack' })
     },
     bulkAidoneAlert() {
-      this.selectedFixing.forEach(alert => {
-        if (alert.attributes?.incident) this.$store
-          .dispatch('alerts/takeAction', [
-            alert.id,
-            'aidone',
-            '',
-            this.ackTimeout
-          ])
-      })
-      this.clearSelected()
+      this.makeBulkAction({ items: this.selectedFixing.filter(a => a.attributes?.incident), timeout: this.ackTimeout, action: 'aidone' })
     },
     bulkFalsePositive() {
-      Promise.all(this.selectedForFalsePositive.map(a => {
-        this.$store
-          .dispatch('alerts/takeAction', [
-            a.id,
-            'false-positive',
-            '',
-            this.ackTimeout
-          ])
-      })).then(() => {
-        this.clearSelected()
-        this.$store.dispatch('alerts/getAlerts')
-      })
+      this.makeBulkAction({ items: this.selectedForFalsePositive, timeout: this.ackTimeout, action: 'false-positive' })
     },
     bulkEscalate() {
-      Promise.all(this.selectedForEscalation.map(a => {
-        this.$store
-          .dispatch('alerts/takeAction', [
-            a.id,
-            'esc',
-            '',
-            this.ackTimeout
-          ])
-      })).then(() => {
-        this.clearSelected()
-        this.$store.dispatch('alerts/getAlerts')
-      })
+      this.makeBulkAction({ items: this.selectedForEscalation, timeout: this.ackTimeout, action: 'esc' })
     },
     bulkConfirmEscalation() {
-      Promise.all(this.selectedForConfirmEscalation.map(a => {
-        this.$store
-          .dispatch('alerts/takeAction', [
-            a.id,
-            'escalation',
-            '',
-            this.ackTimeout
-          ])
-      })).then(() => {
-        this.clearSelected()
-        this.$store.dispatch('alerts/getAlerts')
-      })
+      this.makeBulkAction({ items: this.selectedForConfirmEscalation, timeout: this.ackTimeout, action: 'escalation' })
     },
     bulkConfirmResolution() {
-      Promise.all(this.selectedForClose.map(a => {
-        this.$store
-          .dispatch('alerts/takeAction', [
-            a.id,
-            'close',
-            '',
-            this.ackTimeout
-          ])
-      })).then(() => {
-        this.clearSelected()
-        this.$store.dispatch('alerts/getAlerts')
-      })
+      this.makeBulkAction({ items: this.selectedForClose, timeout: this.ackTimeout, action: 'close' })
     },
     bulkShelveAlert() {
-      Promise.all(this.selected.map(a => {
-        this.$store
-          .dispatch('alerts/takeAction', [
-            a.id,
-            'shelve',
-            '',
-            this.shelveTimeout
-          ])
-      })).then(() => {
-        this.clearSelected()
-        this.$store.dispatch('alerts/getAlerts')
-      })
+      this.makeBulkAction({ items: this.selected, timeout: this.shelveTimeout, action: 'shelve' })
+    },
+    bulkDeleteAlert() {
+      if (confirm(i18n.t('ConfirmDelete'))) {
+        Promise.all(this.selected.map(a => this.$store.dispatch('alerts/deleteAlert', a.id, false))).then(() => {
+          this.clearSelected()
+          this.$store.dispatch('alerts/getAlerts')
+        })
+      }
     },
     isWatched(tags) {
       const tag = `watch:${this.username}`
@@ -1214,7 +1154,6 @@ export default {
         target
       })
         .then(() => {
-          this.clearSelected()
           this.refresh()
         }).catch((err) => {
           // eslint-disable-next-line no-console
@@ -1244,13 +1183,7 @@ export default {
     unwatchAlert(id) {
       this.$store.dispatch('alerts/unwatchAlert', id)
     },
-    bulkDeleteAlert() {
-      confirm(i18n.t('ConfirmDelete')) &&
-        Promise.all(this.selected.map(a => this.$store.dispatch('alerts/deleteAlert', a.id, false))).then(() => {
-          this.clearSelected()
-          this.$store.dispatch('alerts/getAlerts')
-        })
-    },
+
     toggle(sw, value) {
       this.$store.dispatch('alerts/toggle', [sw, value])
     },

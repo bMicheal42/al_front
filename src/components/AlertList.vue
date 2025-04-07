@@ -30,7 +30,7 @@
           :data-id="item.id"
           :data-selected="rowSelected"
           data-incident
-          @click="handleRowClick(item)"
+          @click="handleRowClick(item, $event)"
           @mouseenter="hoveredRow = item.id"
           @mouseleave="hoveredRow = null"
         >
@@ -354,6 +354,7 @@ import LoadingIcon from './common/LoadingIcon.vue'
 import { MultiDrag, Sortable } from 'sortablejs'
 import Swap from '@/common/extensions/Swap.js'
 import _ from 'lodash'
+import { hasPermissions } from '@/directives/hasPerms'
 
 const multiDragPlugin = new MultiDrag()
 
@@ -646,8 +647,19 @@ export default {
     })
   },
   methods: {
-    handleRowClick(item) {
+    handleRowClick(item, event) {
+      if (event.altKey) {
+        if (!hasPermissions('admin')) {
+          return
+        }
+
+        this.openDetailPage(item)
+        return event.stopPropagation()
+      }
       this.toggleExpand(item.id)
+    },
+    openDetailPage(item) {
+      window.open(`/alert/${item.id}`, '_blank')
     },
     onIncidentChecked(incident, selected) {
       const rowElement = document.querySelector(`[data-id="${incident.id}"]`)
@@ -817,7 +829,11 @@ export default {
     },
     selectItem(item, event, selected, isIncident, incident) {
       if (event.altKey) {
-        window.open(`/alert/${item.id}`, '_blank')
+        if (!hasPermissions('admin')) {
+          return
+        }
+
+        this.openDetailPage(item)
         event.preventDefault()
         return event.stopPropagation()
       }

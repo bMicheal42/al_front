@@ -50,9 +50,18 @@ export default {
       case 'open':
         return 'rgb(203,41,41)'
       case 'ack':
+        return '#0052cc'
       case 'fixing-by-24/7':
         return '#0052cc'
       case 'closed':
+        return '#00875a'
+      case 'observation':
+        return '#de9000'
+      case 'pending':
+        return '#de9000'
+      case 'false-positive':
+        return '#de9000'
+      case 'escalated':
         return '#00875a'
       default:
         return '#999999'

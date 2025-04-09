@@ -31,6 +31,8 @@
           :data-selected="rowSelected"
           data-incident
           @click="handleRowClick(item, $event)"
+          @mouseenter="onRowMouseEnter(item.id)"
+          @mouseleave="onRowMouseLeave"
         >
           <td
             class="text-no-wrap"
@@ -66,6 +68,9 @@
               :get-incident-patterns="getIncidentPatterns"
               :show-notes-icon="showNotesIcon"
               :last-note="lastNote"
+              :handle-button-action="handleButtonClick"
+              :is-open="isOpen"
+              :hovered-row-id="hoveredRow"
               @click.stop
             />
           </td>
@@ -238,6 +243,7 @@ export default {
     }
   },
   data: vm => ({
+    hoveredRow: null,
     internalPagination: { sortBy: 'createTime', descending: true, rowsPerPage: 10 },
     search: '',
     expanded: [],
@@ -280,7 +286,8 @@ export default {
       status: {text: i18n.t('Status'), sortable: false,value: 'status'},
       timeInStatus: {text: i18n.t('TimeInStatus'), sortable: false, value: 'timeInStatus', class: 'text-no-wrap'},
       service: {text: i18n.t('Service'), sortable: false, value: 'service'},
-      jiraKey: {text: i18n.t('JiraKey'), value: 'jiraKey', sortable: false,class: 'text-no-wrap header-w-126'},
+      jiraKey: { text: i18n.t('JiraKey'), value: 'jiraKey', sortable: false, class: 'text-no-wrap header-w-126' },
+      quickActions: { text: i18n.t('QuickActions'), value: 'quickActions', sortable: false, class: 'text-no-wrap header-w-126' },
       group: {text: i18n.t('Group'), value: 'group', sortable: false},
       value: {text: i18n.t('Value'), value: 'value',sortable: false, class: 'value-header'},
       text: {text: i18n.t('Summary'), value: 'text', sortable: false,class: 'text-header header-mw-600'},
@@ -375,7 +382,19 @@ export default {
       }, {})
     },
     customHeaders() {
-      return this.$config.columns.map(c =>
+      const fields = [
+        'createTime',
+        'lastReceiveTime',
+        'severity',
+        'status',
+        'timeInStatus',
+        'dutyadmin',
+        'text',
+        'patterns',
+        'jiraKey',
+        'quickActions'
+      ]
+      return fields.map(c =>
         this.headersMap[c] || {text: this.$options.filters.capitalize(c), value: 'attributes.' + c}
       )
     },
@@ -508,6 +527,12 @@ export default {
     })
   },
   methods: {
+    onRowMouseEnter(id) {
+      this.hoveredRow = id
+    },
+    onRowMouseLeave() {
+      this.hoveredRow = null
+    },
     handleRowClick(item, event) {
       if (event.altKey) {
         if (!hasPermissions('admin')) {
@@ -773,6 +798,26 @@ export default {
 </script>
 
 <style>
+
+/* start actions on hover */
+.actions-cell {
+  width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.actions-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  transition: opacity 0.2s ease;
+}
+
+.btn--plain.mx-1 {
+  margin-left: 4px !important;
+  margin-right: 4px !important;
+}
+/* end actions on hover */
 
 .red-dot {
   display: inline-block;

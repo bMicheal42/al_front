@@ -133,6 +133,7 @@ export const de = {
   History: 'Historie',
   Data: 'Daten',
   JiraKey: 'Jira-Schlüssel',
+  QuickActions: 'Schnellaktionen',
 
   Details: 'Details',
   addedNoteOn: 'Notiz hinzugefügt an',

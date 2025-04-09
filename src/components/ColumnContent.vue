@@ -116,6 +116,119 @@
         {{ computedJiraStatus | uppercase }}
       </v-tooltip>
     </span>
+    <span v-if="col === 'quickActions'">
+      <div
+        v-if="hoveredRowId === item.id" 
+        class="actions-container"
+      >
+        <!-- Кнопка "Ack" (для открытых групп) -->
+        <v-btn
+          v-if="isOpen(item.status)"
+          flat
+          icon
+          small
+          class="btn--plain pa-0 ma-0 mx-1"
+          title="Ack"
+          @click.stop="handleAction('ack', item.id)"
+        >
+          <v-icon color="#0F0">
+            check
+          </v-icon>
+        </v-btn>
+      
+        <!-- Кнопка "Take In Fixing" (для подтвержденных групп) -->
+        <v-btn
+          v-if="item.status === 'ack'"
+          flat
+          icon
+          small
+          class="btn--plain pa-0 ma-0 mx-1"
+          title="Take In Fixing"
+          @click.stop="handleAction('inc', item.id)"
+        >
+          <v-icon
+            color="#F00"
+            :size="18"
+          >
+            fa-fire
+          </v-icon>
+        </v-btn>
+      
+        <!-- Кнопка "False Positive" (для групп в определенных статусах) -->
+        <v-btn
+          v-if="!['false-positive', 'closed', 'open'].includes(item.status)"
+          flat
+          icon
+          small
+          class="btn--plain pa-0 ma-0 mx-1"
+          title="False Positive"
+          @click.stop="handleAction('false-positive', item.id)"
+        >
+          <v-icon
+            color="#22F"
+            :size="18"
+          >
+            fa-frown
+          </v-icon>
+        </v-btn>
+      
+        <!-- Кнопка "Escalate" (для групп в стадии фиксинга или наблюдения) -->
+        <v-btn
+          v-if="['fixing-by-24/7', 'observation'].includes(item.status)"
+          flat
+          icon
+          small
+          class="btn--plain pa-0 ma-0 mx-1"
+          title="Escalate"
+          @click.stop="handleAction('esc', item.id)"
+        >
+          <v-icon
+            color="#F00"
+            :size="18"
+          >
+            fa-bell
+          </v-icon>
+        </v-btn>
+      
+        <!-- Кнопка "Confirm Escalation" (для групп в ожидании, только для админов) -->
+        <v-btn
+          v-if="item.status === 'pending'"
+          v-has-perms="'admin'"
+          flat
+          icon
+          small
+          class="btn--plain pa-0 ma-0 mx-1"
+          title="Confirm Escalation"
+          @click.stop="handleAction('escalation', item.id)"
+        >
+          <v-icon
+            color="#F00"
+            :size="18"
+          >
+            fa-bell
+          </v-icon>
+        </v-btn>
+      
+        <!-- Кнопка "Close" (для групп, которые не закрыты, только для админов) -->
+        <v-btn
+          v-if="item.status !== 'closed'"
+          v-has-perms="'admin'"
+          flat
+          icon
+          small
+          class="btn--plain pa-0 ma-0 mx-1"
+          title="Close"
+          @click.stop="handleAction('close', item.id)"
+        >
+          <v-icon
+            color="#0F0"
+            :size="18"
+          >
+            fa-thumbs-up
+          </v-icon>
+        </v-btn>
+      </div>
+    </span>
     <span
       v-if="col === 'patterns'"
       class="patterns"
@@ -343,6 +456,18 @@ export default {
       type: Function,
       default: () => [],
     },
+    handleButtonAction: {
+      type: Function,
+      default: () => () => {},
+    },
+    isOpen: {
+      type: Function,
+      default: () => false,
+    },
+    hoveredRowId: {
+      type: String,
+      default: null,
+    },
   },
   data() {
     return {
@@ -446,6 +571,10 @@ export default {
     }
   },
   methods: {
+    handleAction(action, id) {
+      // proxy call to parent component
+      this.handleButtonAction(action, id)
+    },
     patternColor(string) {
       if (string.startsWith('Host:') && !this.hasDuplicates) return '#818181'
       return utils.hashColor(string, this.isDark)
@@ -705,5 +834,17 @@ div > a .zabbix-link {
   margin-right: 4px;
   cursor: pointer;
   display: none;
+}
+.actions-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-width: 150px;
+  height: 32px;
+}
+
+.actions-container-placeholder {
+  min-width: 150px;
+  height: 32px;
 }
 </style>

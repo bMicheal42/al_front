@@ -133,6 +133,7 @@ export const fr = {
   History: 'Historique',
   Data: 'Donnée',
   JiraKey: 'Clé Jira',
+  QuickActions: 'Actions rapides',
 
   Details: 'Détail',
   addedNoteOn: 'a ajouté une note le',

@@ -56,9 +56,9 @@ export default {
       case 'closed':
         return '#00875a'
       case 'observation':
-        return '#de9000'
+        return '#999999'
       case 'pending':
-        return '#de9000'
+        return '#999999'
       case 'false-positive':
         return '#de9000'
       case 'escalated':

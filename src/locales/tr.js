@@ -133,6 +133,7 @@ export const tr = {
   History: 'Tarihçe',
   Data: 'Veri',
   JiraKey: 'Jira Anahtarı',
+  QuickActions: 'Hızlı Eylemler',
 
   Details: 'Detaylar',
   addedNoteOn: 'Tarihinde not eklendi.',

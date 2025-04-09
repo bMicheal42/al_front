@@ -133,6 +133,7 @@ export const ru = {
   History: 'История',
   Data: 'Данные',
   JiraKey: 'Инцидент (ссылка)',
+  QuickActions: 'Быстрые действия',
 
   Details: 'Подробности',
   addedNoteOn: 'добавил заметку',

@@ -31,8 +31,8 @@
           :data-selected="rowSelected"
           data-incident
           @click="handleRowClick(item, $event)"
-          @mouseenter="hoveredRow = item.id"
-          @mouseleave="hoveredRow = null"
+          @mouseenter="onRowMouseEnter(item.id)"
+          @mouseleave="onRowMouseLeave"
         >
           <td
             class="text-no-wrap"
@@ -68,144 +68,11 @@
               :get-incident-patterns="getIncidentPatterns"
               :show-notes-icon="showNotesIcon"
               :last-note="lastNote"
+              :handle-button-action="handleButtonClick"
+              :is-open="isOpen"
+              :hovered-row-id="hoveredRow"
               @click.stop
             />
-          </td>
-          <!-- actions on hover -->
-
-
-
-       
-          <td class="actions-cell">
-            <div 
-              v-if="hoveredRow === item.id"
-              class="actions-container"
-            >
-              <!-- Кнопка "Ack" (для открытых групп) -->
-              <v-btn
-                v-if="isOpen(item.status)"
-                flat
-                icon
-                small
-                class="btn--plain pa-0 ma-0 mx-1"
-                title="Ack"
-                @click.stop="handleButtonClick('ack', item.id)"
-              >
-                <v-icon color="#0F0">
-                  check
-                </v-icon>
-              </v-btn>
-      
-              <!-- Кнопка "Take In Fixing" (для подтвержденных групп) -->
-              <v-btn
-                v-if="item.status === 'ack'"
-                flat
-                icon
-                small
-                class="btn--plain pa-0 ma-0 mx-1"
-                title="Take In Fixing"
-                @click.stop="handleButtonClick('inc', item.id)"
-              >
-                <v-icon
-                  color="#F00"
-                  :size="18"
-                >
-                  fa-fire
-                </v-icon>
-              </v-btn>
-      
-              <!-- Кнопка "False Positive" (для групп в определенных статусах) -->
-              <v-btn
-                v-if="!['false-positive', 'closed', 'open'].includes(item.status)"
-                flat
-                icon
-                small
-                class="btn--plain pa-0 ma-0 mx-1"
-                title="False Positive"
-                @click.stop="handleButtonClick('false-positive', item.id)"
-              >
-                <v-icon
-                  color="#22F"
-                  :size="18"
-                >
-                  fa-frown
-                </v-icon>
-              </v-btn>
-      
-              <!-- Кнопка "Escalate" (для групп в стадии фиксинга или наблюдения) -->
-              <v-btn
-                v-if="['fixing-by-24/7', 'observation'].includes(item.status)"
-                flat
-                icon
-                small
-                class="btn--plain pa-0 ma-0 mx-1"
-                title="Escalate"
-                @click.stop="handleButtonClick('esc', item.id)"
-              >
-                <v-icon
-                  color="#F00"
-                  :size="18"
-                >
-                  fa-bell
-                </v-icon>
-              </v-btn>
-      
-              <!-- Кнопка "Confirm Escalation" (для групп в ожидании, только для админов) -->
-              <v-btn
-                v-if="item.status === 'pending'"
-                v-has-perms="'admin'"
-                flat
-                icon
-                small
-                class="btn--plain pa-0 ma-0 mx-1"
-                title="Confirm Escalation"
-                @click.stop="handleButtonClick('escalation', item.id)"
-              >
-                <v-icon
-                  color="#F00"
-                  :size="18"
-                >
-                  fa-bell
-                </v-icon>
-              </v-btn>
-      
-              <!-- Кнопка "Close" (для групп, которые не закрыты, только для админов) -->
-              <v-btn
-                v-if="item.status !== 'closed'"
-                v-has-perms="'admin'"
-                flat
-                icon
-                small
-                class="btn--plain pa-0 ma-0 mx-1"
-                title="Close"
-                @click.stop="handleButtonClick('close', item.id)"
-              >
-                <v-icon
-                  color="#0F0"
-                  :size="18"
-                >
-                  fa-thumbs-up
-                </v-icon>
-              </v-btn>
-      
-              <!-- Кнопка "Undo" (только для админов) -->
-              <v-btn
-                v-has-perms="'admin'"
-                flat
-                icon
-                small
-                class="btn--plain pa-0 ma-0 mx-1"
-                title="Undo"
-                @click.stop="handleButtonClick('undo', item.id)"
-              >
-                <v-icon
-                  color="#f1c232"
-                  :size="18"
-                >
-                  undo
-                </v-icon>
-              </v-btn>
-            </div>
           </td>
         </tr>
         <!--NESTED TABLE START HERE-->
@@ -419,7 +286,8 @@ export default {
       status: {text: i18n.t('Status'), sortable: false,value: 'status'},
       timeInStatus: {text: i18n.t('TimeInStatus'), sortable: false, value: 'timeInStatus', class: 'text-no-wrap'},
       service: {text: i18n.t('Service'), sortable: false, value: 'service'},
-      jiraKey: {text: i18n.t('JiraKey'), value: 'jiraKey', sortable: false,class: 'text-no-wrap header-w-126'},
+      jiraKey: { text: i18n.t('JiraKey'), value: 'jiraKey', sortable: false, class: 'text-no-wrap header-w-126' },
+      quickActions: { text: i18n.t('QuickActions'), value: 'quickActions', sortable: false, class: 'text-no-wrap header-w-126' },
       group: {text: i18n.t('Group'), value: 'group', sortable: false},
       value: {text: i18n.t('Value'), value: 'value',sortable: false, class: 'value-header'},
       text: {text: i18n.t('Summary'), value: 'text', sortable: false,class: 'text-header header-mw-600'},
@@ -514,7 +382,19 @@ export default {
       }, {})
     },
     customHeaders() {
-      return this.$config.columns.map(c =>
+      const fields = [
+        'createTime',
+        'lastReceiveTime',
+        'severity',
+        'status',
+        'timeInStatus',
+        'dutyadmin',
+        'text',
+        'patterns',
+        'jiraKey',
+        'quickActions'
+      ]
+      return fields.map(c =>
         this.headersMap[c] || {text: this.$options.filters.capitalize(c), value: 'attributes.' + c}
       )
     },
@@ -647,6 +527,12 @@ export default {
     })
   },
   methods: {
+    onRowMouseEnter(id) {
+      this.hoveredRow = id
+    },
+    onRowMouseLeave() {
+      this.hoveredRow = null
+    },
     handleRowClick(item, event) {
       if (event.altKey) {
         if (!hasPermissions('admin')) {

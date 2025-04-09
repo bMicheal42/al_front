@@ -133,6 +133,7 @@ export const en = {
   History: 'History',
   Data: 'Data',
   JiraKey: 'Inc link',
+  QuickActions: 'Quick Actions',
 
   Details: 'Details',
   addedNoteOn: 'added note on',

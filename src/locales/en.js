@@ -92,6 +92,9 @@ export const en = {
   Escalate: 'Escalate',
   ConfirmEscalation: 'Confirm Escalation',
   RestrictedMergeJira: 'Restricted to merge several alerts opened in Jira',
+  PleaseChooseGroupForIncidentEscalation: 'Please choose the group for the incident escalation.',
+  NoticeDefaultValueIsOwnerTag: 'Notice: default value is the owner tag value from the first alert (if exists)',
+  External: 'External',
 
   // Alert notifications
   NewAlertRegistered: 'New alert received!',

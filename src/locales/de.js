@@ -92,6 +92,9 @@ export const de = {
   Escalate: 'Eskalieren',
   ConfirmEscalation: 'Eskalation bestätigen',
   RestrictedMergeJira: 'Einschränkung beim Zusammenführen mehrerer in Jira geöffneter Warnungen',
+  PleaseChooseGroupForIncidentEscalation: 'Bitte wählen Sie die Gruppe für die Eskalation des Vorfalls.',
+  NoticeDefaultValueIsOwnerTag: 'Hinweis: Der Standardwert ist der Wert des Owner_1-Tags aus der ersten Warnung (falls vorhanden)',
+  External: 'Extern',
 
   // Alert notifications
   NewAlertRegistered: 'Neuer Alarm empfangen!',

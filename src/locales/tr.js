@@ -90,9 +90,12 @@ export const tr = {
   TakeInFixingBy24Per7: 'Olay',
   Aidone: 'Yapay Zeka Tamamlandı',
   FalsePositive: 'Yanlış pozitif',
-  Escalate: 'Yükselt',
+  Escalate: 'Artırmak',
   ConfirmEscalation: 'Yükseltmeyi Onayla',
-  RestrictedMergeJira: 'Jira\'da açılan birden fazla uyarının birleştirilmesi kısıtlanmıştır',
+  RestrictedMergeJira: 'Jira\'da açık olan birden fazla uyarıyı birleştirmekle sınırlıdır',
+  PleaseChooseGroupForIncidentEscalation: 'Lütfen olay artırımı için grup seçin.',
+  NoticeDefaultValueIsOwnerTag: 'Not: varsayılan değer, ilk uyarıdaki Owner_1 etiketinin değeridir (varsa)',
+  External: 'Harici',
 
   // Alert notifications
   NewAlertRegistered: 'Yeni uyarı alındı!',

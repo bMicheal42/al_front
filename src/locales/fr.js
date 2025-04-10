@@ -91,7 +91,10 @@ export const fr = {
   FalsePositive: 'Faux positif',
   Escalate: 'Escalader',
   ConfirmEscalation: 'Confirmer l\'escalade',
-  RestrictedMergeJira: 'Restriction de fusionner plusieurs alertes ouvertes dans Jira',
+  RestrictedMergeJira: 'Restreint à la fusion de plusieurs alertes ouvertes dans Jira',
+  PleaseChooseGroupForIncidentEscalation: 'Veuillez choisir le groupe pour l\'escalade de l\'incident.',
+  NoticeDefaultValueIsOwnerTag: 'Remarque : la valeur par défaut est la valeur de la balise Owner_1 de la première alerte (si elle existe)',
+  External: 'Externe',
 
   // Alert notifications
   NewAlertRegistered: 'Nouvelle alerte reçue!',

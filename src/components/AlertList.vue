@@ -861,6 +861,12 @@ export default {
   height: 42px;
 }
 
+.comfortable table.v-table tbody tr.tr-active td {
+  height: 100%;
+}
+
+
+
 .compact table.v-table tbody td, table.v-table tbody th {
   height: 34px;
 }

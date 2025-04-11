@@ -208,7 +208,7 @@ export default {
         }
         return
       })
-      auth_win = window.open(this.$config.endpoint + '/auth/saml', i18n.t('AuthInProgress'))
+      auth_win = this.$router.push(this.$config.endpoint + '/auth/saml').href
     }
   }
 }

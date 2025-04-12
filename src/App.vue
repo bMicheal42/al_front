@@ -1051,7 +1051,11 @@ export default {
       })
     },
     makeBulkAction({ items, timeout = this.ackTimeout, action = 'ack', clearSelected = true }) {
-      Promise.all(items.map(a => this.$store.dispatch('alerts/takeAction', [a.id, action, '', timeout])))
+      // Получаем массив ID алертов
+      const alertIds = items.map(a => a.id)
+      
+      // Используем единый bulk запрос вместо множества отдельных
+      this.$store.dispatch('alerts/takeBulkAction', [alertIds, action, '', timeout])
         .then(() => {
           if (clearSelected) {
             this.clearSelected()

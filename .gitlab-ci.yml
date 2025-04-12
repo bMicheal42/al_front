@@ -26,6 +26,7 @@ build:
   script:
     - npm install --cache .npm
     #- npm ci --cache .npm --prefer-offline --no-audit  
+    - export BASE_URL="/alerta/"
     - npm run build
   artifacts:
     paths:
@@ -41,7 +42,7 @@ release:
   tags: 
     - alerta-webui
   script:
-    - scp -r dist/* root@10.6.128.107:/var/www/alerta-ui/
+    - scp -r dist/* root@10.6.128.107:/var/www/alerta-ui-subpath/
   dependencies:
     - build
   rules:

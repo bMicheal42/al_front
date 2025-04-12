@@ -9,7 +9,13 @@ export default {
     return api.put(`/alert/${alertId}/status`, data)
   },
   actionAlert(alertId: string, data: object) {
-    return api.put(`/alert/${alertId}/action`, data)
+    const { action, text, timeout } = data as any
+    return this.bulkActionAlerts({
+      alert_ids: [alertId],
+      action,
+      text,
+      timeout
+    })
   },
   bulkActionAlerts(data: object) {
     return api.put('/_bulk/alerts/action', data)

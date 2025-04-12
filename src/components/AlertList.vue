@@ -732,12 +732,12 @@ export default {
     },
     takeAction: throttle(function (id, action) {
       this.$store
-        .dispatch('alerts/takeAction', [id, action, ''])
+        .dispatch('alerts/takeBulkAction', [[id], action, ''])
         .then(() => this.$store.dispatch('alerts/getAlerts'))
     }, 0, {leading: true, trailing: false}),
     ackAlert: debounce(function (id) {
       this.$store
-        .dispatch('alerts/takeAction', [id, 'ack', '', this.ackTimeout])
+        .dispatch('alerts/takeBulkAction', [[id], 'ack', '', this.ackTimeout])
         .then(() => this.$store.dispatch('alerts/getAlerts'))
     }, 200, {leading: true, trailing: false}),
     shelveAlert: debounce(function (id) {

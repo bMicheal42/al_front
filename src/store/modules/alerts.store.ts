@@ -247,7 +247,8 @@ const actions = {
     return AlertsApi.untagAlert(alertId, {tags: [tag]})
   },
   takeAction({commit, dispatch}, [alertId, action, text, timeout]) {
-    return AlertsApi.actionAlert(alertId, {
+    return AlertsApi.bulkActionAlerts({
+      alert_ids: [alertId],
       action: action,
       text: text,
       timeout: timeout

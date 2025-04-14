@@ -409,6 +409,11 @@
           <span>{{ $t('MergeIncident') }}</span>
         </v-tooltip>
 
+        <merge-with-button
+          v-if="selectedForMergeWith.length > 0"
+          :selected="selectedForMergeWith"
+        />
+
         <v-tooltip bottom>
           <v-btn
             slot="activator"
@@ -715,15 +720,17 @@
 import Banner from '@/components/lib/Banner.vue'
 import ProfileMe from '@/components/auth/ProfileMe.vue'
 import Snackbar from '@/components/lib/Snackbar.vue'
-
+import MergeWithButton from '@/components/actions/MergeWith/MergeWithButton.vue'
 import i18n from '@/plugins/i18n'
+import { alertModel } from '@/models/alert'
 
 export default {
   name: 'App',
   components: {
     Banner,
     ProfileMe,
-    Snackbar
+    Snackbar,
+    MergeWithButton
   },
   props: [],
   data: () => ({
@@ -943,6 +950,14 @@ export default {
     },
     selectedForEscalation() {
       return this.selectedIncidents.filter(a => ['fixing-by-24/7', 'observation'].includes(a.status))
+    },
+    selectedForMergeWith() {
+      const items = this.selected.filter(alertModel.canMergeWith)
+      if (items.length === 0) {
+        return []
+      }
+
+      return this.getMovingIds(items)
     },
     selectedForConfirmEscalation() {
       return this.selectedIncidents.filter(a => a.status === 'pending')

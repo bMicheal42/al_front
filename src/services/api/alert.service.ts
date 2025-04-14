@@ -15,6 +15,7 @@ export default {
     return api.put('/_bulk/alerts/action', data)
   },
   moveAlerts(data: object, target: string | null) {
+    console.log('moveAlerts', data, target)
     return api.post(`/alerts/move/${target || 'new'}`, data)
   },
   tagAlert(alertId: string, data: object) {
@@ -41,9 +42,17 @@ export default {
   deleteNote(alertId: string, noteId: string) {
     return api.delete(`/alert/${alertId}/note/${noteId}`)
   },
+  getIncidents(query: object) {
+    let config = {
+      params: query
+    }
+    return api.get('/incidents', config)
+  },
   getAlerts(query: object, setCancelTokenAction) {
     const cancelTokenSource = axios.CancelToken.source()
-    setCancelTokenAction(cancelTokenSource)
+    if (setCancelTokenAction) {
+      setCancelTokenAction(cancelTokenSource)
+    }
     let config = {
       params: query,
       cancelToken: cancelTokenSource.token

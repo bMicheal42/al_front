@@ -92,6 +92,9 @@ export const en = {
   Escalate: 'Escalate',
   ConfirmEscalation: 'Confirm Escalation',
   RestrictedMergeJira: 'Restricted to merge several alerts opened in Jira',
+  AiDoneActions: 'What actions did you take?',
+  SendResults: 'Send results',
+  FieldIsRequired: 'Field is required',
 
   // Alert notifications
   NewAlertRegistered: 'New alert received!',

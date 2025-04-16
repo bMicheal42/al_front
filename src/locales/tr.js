@@ -93,6 +93,9 @@ export const tr = {
   Escalate: 'Yükselt',
   ConfirmEscalation: 'Yükseltmeyi Onayla',
   RestrictedMergeJira: 'Jira\'da açılan birden fazla uyarının birleştirilmesi kısıtlanmıştır',
+  AiDoneActions: 'Yapılan eylemler neler?',
+  SendResults: 'Sonuçları gönder',
+  FieldIsRequired: 'Bu alan zorunludur',
 
   // Alert notifications
   NewAlertRegistered: 'Yeni uyarı alındı!',

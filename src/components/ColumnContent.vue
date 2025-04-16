@@ -1,13 +1,13 @@
 <template>
   <div>
-    <span v-if="col === 'createTime'">
+    <span v-if="col === 'create_time'">
       <date-time
-        :value="item.createTime"
+        :value="item.create_time"
         format="mediumDate"
         custom-format="YYYY-MM-DD HH:mm:ss"
       />
     </span>
-    <span v-if="col === 'lastReceiveTime'">
+    <span v-if="col === 'last_alert_time'">
       <date-time
         :value="calculatedLastReceiveTime"
         format="mediumDate"
@@ -147,7 +147,7 @@
     <span v-if="col === 'recoveryTime'">
       {{ calcResolveDurationInMinutes(item) }}
     </span>
-    <span v-if="col === 'text'">
+    <span v-if="col === 'summary'">
       <div style="display: flex; gap: 4px;">
         <div :class="['incident-info-wrapper', hasDuplicates && !isChild ? '' : 'incident-info-wrapper-full']">
           <v-tooltip
@@ -213,14 +213,14 @@
                 </span>
                 <span
                   v-on="onTooltip"
-                  v-html="item.text"
+                  v-html="item.summary"
                 />
               </span>
             </template>
             <div
               style="max-width: 400px; white-space: pre-line;"
             >
-              {{ item.text }}
+              {{ item.summary }}
             </div>
           </v-tooltip>
           <div class="text-capitalize-first">
@@ -368,14 +368,14 @@ export default {
       }
     },
     hasDuplicates() {
-      const duplicateIds = this.item?.attributes['duplicate alerts']
+      const duplicateIds = this.item?.alerts
       return !(!duplicateIds || duplicateIds.length === 0)
     },
     calculatedSeverity() {
       return !this.hasDuplicates ? this.item.severity : this.getIncidentSeverity(this.item)
     },
     calculatedLastReceiveTime() {
-      return !this.hasDuplicates ? this.item.lastReceiveTime : this.getIncidentLastReceiveTime(this.item)
+      return this.item.last_alert_time
     },
     calculatedPatterns() {
       // return ['field1:value1', 'field2:value2']

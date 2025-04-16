@@ -41,14 +41,19 @@ export default {
   deleteNote(alertId: string, noteId: string) {
     return api.delete(`/alert/${alertId}/note/${noteId}`)
   },
-  getAlerts(query: object, setCancelTokenAction) {
+  getAlertsByIssueId(issueId: string) {
+    return api.get(`/issues/${issueId}/alerts`)
+  },
+  getIssues(query: object, setCancelTokenAction) {
     const cancelTokenSource = axios.CancelToken.source()
     setCancelTokenAction(cancelTokenSource)
+    // @ts-ignore
+    query.append('items', 10)
     let config = {
       params: query,
       cancelToken: cancelTokenSource.token
     }
-    return api.get('/alerts', config)
+    return api.get('/issues', config)
   },
   getAlertMoveHistory(limit: number = 100, offset: number = 0) {
     return api.get('/alerts/move_history', {

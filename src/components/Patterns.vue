@@ -483,7 +483,7 @@ export default {
       if (this.$store.state.alerts?.alerts?.length) {
         this.testAlertId = this.$store.state.alerts.alerts[0].id
       } else {
-        await this.$store.dispatch('alerts/getAlerts')
+        await this.$store.dispatch('alerts/getIssues')
         if (this.$store.state.alerts?.alerts?.length) {
           this.testAlertId = this.$store.state.alerts.alerts[0].id
         }

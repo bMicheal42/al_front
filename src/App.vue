@@ -1047,7 +1047,7 @@ export default {
     takeBulkAction(action) {
       Promise.all(this.selected.map(a => this.$store.dispatch('alerts/takeAction', [a.id, action, '']))).then(() => {
         this.clearSelected()
-        this.$store.dispatch('alerts/getAlerts')
+        this.$store.dispatch('alerts/getIssues')
       })
     },
     makeBulkAction({ items, timeout = this.ackTimeout, action = 'ack', clearSelected = true }) {
@@ -1056,7 +1056,7 @@ export default {
           if (clearSelected) {
             this.clearSelected()
           }
-          this.$store.dispatch('alerts/getAlerts')
+          this.$store.dispatch('alerts/getIssues')
         })
     },
     takeInFixingBy24Per7() {
@@ -1087,7 +1087,7 @@ export default {
       if (confirm(i18n.t('ConfirmDelete'))) {
         Promise.all(this.selected.map(a => this.$store.dispatch('alerts/deleteAlert', a.id, false))).then(() => {
           this.clearSelected()
-          this.$store.dispatch('alerts/getAlerts')
+          this.$store.dispatch('alerts/getIssues')
         })
       }
     },
@@ -1174,7 +1174,7 @@ export default {
     
       Promise.all(map).then(() => {
         this.clearSelected()
-        this.$store.dispatch('alerts/getAlerts')
+        this.$store.dispatch('alerts/getIssues')
       })
     },
     watchAlert(id) {

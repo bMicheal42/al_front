@@ -28,7 +28,7 @@ const state = {
   showPanel: false,
   displayDensity: 'comfortable', // 'comfortable' or 'compact'
   abort: {
-    getAlerts: null
+    getIssues: null
   },
 
   // query, filter and pagination
@@ -63,7 +63,7 @@ const mutations = {
     state.query = query
   },
   SET_ALERTS(state, [alerts, total, pageSize, incidentTotal]): any {
-    state.abort.getAlerts = null
+    state.abort.getIssues = null
     state.isLoading = false
     state.isSearching = false
     state.alerts = alerts
@@ -128,7 +128,7 @@ const mutations = {
     state.showPanel = panel
   },
   SET_ABORT_CONTROLLER(state, controller) {
-    state.abort.getAlerts = controller
+    state.abort.getIssues = controller
   },
   ABORT_QUERY(state, name) {
     if (state.abort[name]) {
@@ -139,7 +139,7 @@ const mutations = {
 }
 
 const actions = {
-  getAlerts({rootGetters, commit, state}) {
+  getIssues({rootGetters, commit, state}) {
     commit('SET_LOADING')
     // get "lucene" query params (?q=)
     let params = new URLSearchParams(state.query)
@@ -204,18 +204,18 @@ const actions = {
       commit('SET_ABORT_CONTROLLER', controller)
     }
 
-    commit('ABORT_QUERY', 'getAlerts')
+    commit('ABORT_QUERY', 'getIssues')
 
-    return AlertsApi.getAlerts(params, setAbortToken)
-      .then(({alerts, total, pageSize, incidentTotal}) => {
-        return commit('SET_ALERTS', [alerts, total, pageSize, incidentTotal])
+    return AlertsApi.getIssues(params, setAbortToken)
+      .then(({issues, total, pageSize, incidentTotal}) => {
+        return commit('SET_ALERTS', [issues, total, pageSize, incidentTotal])
       })
       .catch(err => {
         if (err.message !== 'Too many search requests. Cancelling current query.') commit('RESET_LOADING')
       })
   },
   abortGetAlerts({commit}) {
-    commit('ABORT_QUERY', 'getAlerts')
+    commit('ABORT_QUERY', 'getIssues')
   },
   updateQuery({commit}, query) {
     commit('SET_SEARCH_QUERY', query)
@@ -264,7 +264,7 @@ const actions = {
   move({commit, dispatch}, {movingObjects, target}) {
     return AlertsApi.moveAlerts(movingObjects, target).then(answer => {
       if (answer && answer.status === 'ok' && answer.updates) {
-        commit('ABORT_QUERY', 'getAlerts')
+        commit('ABORT_QUERY', 'getIssues')
         commit('APPLY_MOVE', answer.updates, answer.close_updates)
       }
     })
@@ -279,7 +279,7 @@ const actions = {
   addNote({commit, dispatch}, [alertId, text]) {
     return AlertsApi.addNote(alertId, {
       text: text
-    }).then(response => dispatch('getAlerts'))
+    }).then(response => dispatch('getIssues'))
   },
   getNotes({commit}, alertId) {
     return AlertsApi.getNotes(alertId).then(({notes}) => {

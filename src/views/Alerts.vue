@@ -180,6 +180,8 @@ export default {
       return this.$config.indicators ? this.$config.indicators.queries  : []
     },
     alerts() {
+      console.log('alerts', this.$store.getters['alerts/alerts'])
+
       if (this.filter) {
         return this.$store.getters['alerts/alerts']
           .filter(alert =>
@@ -226,7 +228,7 @@ export default {
       return this.$store.state.refresh
     },
     abortController() {
-      return this.$store.state.alerts.abort.getAlerts
+      return this.$store.state.alerts.abort.getIssues
     },
     isLoggedIn() {
       return this.$store.getters['auth/isLoggedIn']
@@ -359,8 +361,8 @@ export default {
     abortGetAlerts() {
       return this.$store.dispatch('alerts/abortGetAlerts')
     },
-    getAlerts() {
-      return this.$store.dispatch('alerts/getAlerts')
+    getIssues() {
+      return this.$store.dispatch('alerts/getIssues')
     },
     playSound() {
       !this.isMute && this.$refs.audio.play()
@@ -378,7 +380,7 @@ export default {
         return
       }
 
-      this.getAlerts()
+      this.getIssues()
         .then(() => {
           this.isNewOpenAlerts && this.playSound()
         })

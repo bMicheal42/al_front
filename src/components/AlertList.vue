@@ -77,7 +77,7 @@
           :data-id="item.id+'_nested'"
         >
           <td
-            v-if="getAlertDuplicates(item).length > 0"
+            v-if="getIssueAlerts(item).length > 0"
             :colspan="12"
             class="no-padding"
           >
@@ -86,7 +86,7 @@
                 <v-data-table
                   v-if="isExpanded(item.id)"
                   :headers="internalHeaders"
-                  :items="getAlertDuplicates(item, true)"
+                  :items="getIssueAlerts(item, true)"
                   item-key="id"
                   :class="isDark ? 'nested-table-dark' : 'nested-table-light'"
                   hide-default-footer
@@ -270,7 +270,7 @@ export default {
       'group'
     ],
     headersMap: {
-      createTime: { text: i18n.t('CreateTime'), sortable: false, value: 'createTime', class: 'text-no-wrap' },
+      createTime: { text: i18n.t('CreateTime'), sortable: false, value: 'create_time', class: 'text-no-wrap' },
       id: { text: i18n.t('AlertId'), value: 'id',sortable: false },
       resource: { text: i18n.t('Resource'),sortable: false, value: 'resource', class: 'text-no-wrap'},
       event: {text: i18n.t('Event'), sortable: false,value: 'event', class: 'text-no-wrap'},
@@ -283,7 +283,7 @@ export default {
       jiraKey: {text: i18n.t('JiraKey'), value: 'jiraKey', sortable: false,class: 'text-no-wrap header-w-126'},
       group: {text: i18n.t('Group'), value: 'group', sortable: false},
       value: {text: i18n.t('Value'), value: 'value',sortable: false, class: 'value-header'},
-      text: {text: i18n.t('Summary'), value: 'text', sortable: false,class: 'text-header header-mw-600'},
+      text: {text: i18n.t('Summary'), value: 'summary', sortable: false,class: 'text-header header-mw-600'},
       tags: {text: i18n.t('Tags'), value: 'tags',sortable: false,},
       attributes: {text: i18n.t('Attribute'),sortable: false, value: 'attributes'},
       origin: {text: i18n.t('Origin'), value: 'origin',sortable: false},
@@ -299,7 +299,7 @@ export default {
       receiveTime: {text: i18n.t('ReceiveTime'), value: 'receiveTime', class: 'text-no-wrap',sortable: false},
       duration: {text: i18n.t('Duration'), value: 'duration',sortable: false  },
       lastReceiveId: {text: i18n.t('LastReceiveId'), value: 'lastReceiveId',sortable: false },
-      lastReceiveTime: {text: i18n.t('LastReceiveTime'), value: 'lastReceiveTime', class: 'last-receive-time text-no-wrap',sortable: false  },
+      lastReceiveTime: {text: i18n.t('LastReceiveTime'), value: 'last_alert_time', class: 'last-receive-time text-no-wrap',sortable: false  },
       note: {text: i18n.t('LastNote'), value: 'note', sortable: false}
     },
     details: false,
@@ -315,7 +315,7 @@ export default {
       return this.$store.getters.getPreference('isDark')
     },
     incidents() {
-      return this.alerts.filter(alert => alert.attributes['incident'])
+      return this.alerts
     },
     displayDensity() {
       return (
@@ -529,7 +529,7 @@ export default {
       } else {
         multiDragDeselect(rowElement)
       }
-      const dublicates = this.getAlertDuplicates(incident, true)
+      const dublicates = this.getIssueAlerts(incident, true)
       const newSelected = selected
         ? [...this.selected, ...dublicates]
         : this.selected.filter(item => !dublicates.some(duplicate => duplicate.id === item.id))
@@ -583,8 +583,8 @@ export default {
     isExpanded(id) {
       return this.expanded.includes(id)
     },
-    getAlertDuplicates(alert, includeSelf = false) {
-      const duplicateIds = alert.attributes?.['duplicate alerts'] || []
+    getIssueAlerts(issue, includeSelf = false) {
+      const duplicateIds = issue.attributes?.['duplicate alerts'] || []
 
       if (!duplicateIds.length && !includeSelf) return []
 
@@ -600,7 +600,7 @@ export default {
       })
 
       if (includeSelf) {
-        duplicates.push(alert)
+        duplicates.push(issue)
       }
 
       return duplicates
@@ -608,7 +608,7 @@ export default {
     getIncidentStats(alert) {
       const alertTexts = []
 
-      const duplicateAlerts = this.getAlertDuplicates(alert, true) || []
+      const duplicateAlerts = this.getIssueAlerts(alert, true) || []
       const newAlerts = duplicateAlerts.filter(item => item.status === 'open').length
       const unresolvedAlerts = duplicateAlerts.filter(item => ['open', 'closed'].includes(item.status) === false).length
       const resolvedAlerts = duplicateAlerts.filter(item => item.status === 'closed').length
@@ -626,7 +626,7 @@ export default {
       return alertTexts.length ? ` ${alertTexts.join(' / ')}` : ''
     },
     getIncidentSeverity(incident) {
-      const duplicateAlerts = this.getAlertDuplicates(incident, true)
+      const duplicateAlerts = this.getIssueAlerts(incident, true)
       return duplicateAlerts.reduce((acc, { severity }) => {
         if ([acc, severity].includes('critical')) return 'critical'
         if ([acc, severity].includes('high')) return 'high'
@@ -634,7 +634,7 @@ export default {
       }, 'medium')
     },
     getIncidentLastReceiveTime(incident) {
-      const duplicateAlerts = this.getAlertDuplicates(incident, true)
+      const duplicateAlerts = this.getIssueAlerts(incident, true)
       return duplicateAlerts.reduce((acc, alert) => {
         return moment(alert.lastReceiveTime).isAfter(acc) ? alert.lastReceiveTime : acc
       }, incident.lastReceiveTime)
@@ -649,7 +649,7 @@ export default {
         'PhysicalHost': 'Hardware:',
       }
       let pattern = null
-      const duplicateAlerts = this.getAlertDuplicates(incident, false)
+      const duplicateAlerts = this.getIssueAlerts(incident, false)
       if (!duplicateAlerts.every(alert => {
         if (!pattern) pattern = alert.attributes?.pattern_name
         return alert.attributes?.pattern_name === pattern
@@ -733,32 +733,32 @@ export default {
     takeAction: throttle(function (id, action) {
       this.$store
         .dispatch('alerts/takeAction', [id, action, ''])
-        .then(() => this.$store.dispatch('alerts/getAlerts'))
+        .then(() => this.$store.dispatch('alerts/getIssues'))
     }, 0, {leading: true, trailing: false}),
     ackAlert: debounce(function (id) {
       this.$store
         .dispatch('alerts/takeAction', [id, 'ack', '', this.ackTimeout])
-        .then(() => this.$store.dispatch('alerts/getAlerts'))
+        .then(() => this.$store.dispatch('alerts/getIssues'))
     }, 200, {leading: true, trailing: false}),
     shelveAlert: debounce(function (id) {
       this.$store
         .dispatch('alerts/takeAction', [id, 'shelve', '', this.shelveTimeout])
-        .then(() => this.$store.dispatch('alerts/getAlerts'))
+        .then(() => this.$store.dispatch('alerts/getIssues'))
     }, 200, {leading: true, trailing: false}),
     watchAlert: debounce(function (id) {
       this.$store
         .dispatch('alerts/watchAlert', id)
-        .then(() => this.$store.dispatch('alerts/getAlerts'))
+        .then(() => this.$store.dispatch('alerts/getIssues'))
     }, 200, {leading: true, trailing: false}),
     unwatchAlert: debounce(function (id) {
       this.$store
         .dispatch('alerts/unwatchAlert', id)
-        .then(() => this.$store.dispatch('alerts/getAlerts'))
+        .then(() => this.$store.dispatch('alerts/getIssues'))
     }, 200, {leading: true, trailing: false}),
     deleteAlert: debounce(function (id) {
       confirm(i18n.t('ConfirmDelete')) &&
         this.$store.dispatch('alerts/deleteAlert', id)
-          .then(() => this.$store.dispatch('alerts/getAlerts'))
+          .then(() => this.$store.dispatch('alerts/getIssues'))
     }, 200, {leading: true, trailing: false}),
     clipboardCopy(text) {
       let textarea = document.createElement('textarea')

@@ -1,84 +1,70 @@
 <template>
   <v-dialog
     v-model="show"
-    max-width="500px"
+    max-width="600px"
   >
-    <v-form ref="form">
-      <v-card>
-        <v-card-title>
-          <span class="headline">
-            {{ $t('Escalate') }}
-          </span>
-        </v-card-title>
+    <v-card>
+      <v-card-title class="text-h5 grey lighten-2">
+        <h2>
+          {{ $t('Escalate') }}
+        </h2>
+      </v-card-title>
 
-        <v-card-text>
-          <v-container grid-list-md>
-            <v-layout wrap>
-              <v-flex xs12>
-                <p>{{ $t('PleaseChooseGroupForIncidentEscalation') }}</p>
-                <p class="caption">
-                  {{ $t('NoticeDefaultValueIsOwnerTag') }}
-                </p>
-              </v-flex>
-              <v-flex xs12>
-                <v-autocomplete
-                  v-model="selectedGroup"
-                  :items="sortedGroups"
-                  :label="$t('Group')"
-                  clearable
-                  autocomplete
-                  outline
-                  :loading="loading"
-                  item-text="name"
-                  item-value="id"
-                  return-object
-                >
-                  <template v-slot:item="{ item, selected }">
-                    <v-list-item-content>
-                      <v-list-item-title :class="{ 'blue--text': item.isExternal, 'font-weight-bold': selected }">
-                        <v-icon
-                          v-if="selected"
-                          small
-                          color="green"
-                          class="mr-2"
-                        >
-                          mdi-check
-                        </v-icon>
-                        {{ item.name }}
-                      </v-list-item-title>
-                    </v-list-item-content>
-                  </template>
-                  <template v-slot:selection="{ item }">
-                    <v-chip :color="item.isExternal ? 'blue lighten-4' : ''">
-                      <span :class="{ 'blue--text text--darken-2': item.isExternal }">{{ item.name }}</span>
-                    </v-chip>
-                  </template>
-                </v-autocomplete>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-card-text>
+      <v-card-text class="pt-4">
+        <p>{{ $t('PleaseChooseGroupForIncidentEscalation') }}</p>
+        <p class="caption">
+          {{ $t('NoticeDefaultValueIsOwnerTag') }}
+        </p>
+        
+        <div class="mt-4">
+          <v-autocomplete
+            v-model="selectedGroup"
+            :items="sortedGroups"
+            :placeholder="$t('SelectGroup')"
+            clearable
+            outlined
+            dense
+            height="42px"
+            :loading="loading"
+            item-text="name"
+            item-value="id"
+            return-object
+          >
+            <template v-slot:item="{ item, selected }">
+              <div class="v-list-item__content">
+                <div :class="{ 'v-list-item__title': true, 'blue--text': item.isExternal, 'font-weight-bold': selected, 'yellow--text': selected }">
+                  {{ item.name }}
+                </div>
+              </div>
+            </template>
+            <template v-slot:selection="{ item }">
+              <v-chip :color="item.isExternal ? 'blue lighten-4' : ''">
+                <span :class="{ 'blue--text text--darken-2': item.isExternal }">{{ item.name }}</span>
+              </v-chip>
+            </template>
+          </v-autocomplete>
+        </div>
+      </v-card-text>
 
-        <v-card-actions>
-          <v-spacer />
+      <v-card-actions>
+        <div class="d-flex ml-auto">
           <v-btn
-            color="blue darken-1"
             text
             @click="close"
           >
             {{ $t('Cancel') }}
           </v-btn>
           <v-btn
-            color="blue darken-1"
-            text
-            :disabled="loading"
+            color="primary"
+            :disabled="loading || !selectedGroup"
+            class="ml-2"
             @click="escalate"
           >
             {{ $t('Escalate') }}
           </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-form>
+        </div>
+      </v-card-actions>
+    </v-card>
   </v-dialog>
 </template>
 
@@ -199,11 +185,10 @@ export default {
       this.selectedGroup = null
     },
     escalate() {
-      // Логируем выбранную группу
-      
+      // логируем выбранную группу
       this.$emit('escalate', {
         items: this.items,
-        escalation_group: this.selectedGroup ? this.selectedGroup.id : null
+        escalation_group: this.selectedGroup ? this.selectedGroup.name : null
       })
       this.close()
     },
@@ -245,4 +230,50 @@ export default {
     }
   }
 }
-</script> 
+</script>
+
+<style scoped>
+.v-list-item {
+  min-height: 36px !important;
+}
+
+.v-text-field.v-text-field--outlined input {
+  margin-top: 0;
+}
+
+.v-chip {
+  margin: 0;
+}
+
+/* Увеличиваем высоту input поля */
+.v-input.v-autocomplete {
+  font-size: 14px;
+}
+
+.v-input.v-autocomplete .v-input__slot {
+  min-height: 58px !important;
+}
+
+.v-input.v-autocomplete .v-select__selections {
+  padding-top: 8px;
+}
+
+/* Стили для элементов выпадающего списка */
+.v-list-item__content {
+  padding: 8px 0;
+}
+
+.v-list-item__title {
+  font-size: 14px;
+}
+
+/* Правила для выделения цветом с нужной специфичностью */
+.v-list-item__title.blue--text {
+  color: #1976d2 !important;
+}
+
+/* Более высокая специфичность для выделенного элемента */
+.v-list-item__title.yellow--text {
+  color: #f9a825 !important; /* Золотисто-желтый цвет */
+}
+</style> 

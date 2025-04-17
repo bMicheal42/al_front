@@ -1099,8 +1099,8 @@ export default {
     },
     
     bulkEscalate() {
-      const masterAlert = this.findIssue(this.selectedForEscalation)
-      this.defaultOwnerGroup = masterAlert ? this.getOwnerTagValue(masterAlert) : null
+      const issue = this.findIssue(this.selectedForEscalation)
+      this.defaultOwnerGroup = issue ? this.getOwnerTagValue(issue) : null
       this.showEscalateDialog = true
     },
     

@@ -246,11 +246,12 @@ const actions = {
     const tag = `watch:${username}`
     return AlertsApi.untagAlert(alertId, {tags: [tag]})
   },
-  takeAction({commit, dispatch}, [alertId, action, text, timeout]) {
+  takeAction({commit, dispatch}, [alertId, action, text, timeout, additionalParams = {}]) {
     return AlertsApi.actionAlert(alertId, {
       action: action,
       text: text,
-      timeout: timeout
+      timeout: timeout,
+      ...additionalParams
     })
   },
   takeBulkAction({commit, dispatch}, [alertIds, action, text, timeout]) {

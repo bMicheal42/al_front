@@ -74,6 +74,7 @@
 
 <script>
 import i18n from '@/plugins/i18n'
+import JiraService from '@/services/api/jira.service'
 
 export default {
   props: {
@@ -103,6 +104,33 @@ export default {
       set(value) {
         this.$emit('input', value)
       }
+    },
+    // получаем значение тега Owner_1 из  для использования как дефолтная группа
+    ownerFromTag() {
+      // проверяем, что у нас есть алерты
+      if (!this.items || this.items.length === 0) {
+        return null
+      }
+      
+      // Берем первый алерт
+      const firstAlert = this.items[0]
+      
+      // Проверяем, что у алерта есть теги
+      if (!firstAlert.tags || !Array.isArray(firstAlert.tags)) {
+        return null
+      }
+            
+      // Ищем тег Owner_1
+      const ownerTag = firstAlert.tags.find(tag => {
+        return typeof tag === 'string' && tag.startsWith('Owner_1:')
+      })
+      
+      // Если нашли тег, извлекаем значение
+      if (ownerTag) {
+        const value = ownerTag.split(':')[1].trim()
+        return value
+      }
+      return null
     }
   },
   watch: {
@@ -111,11 +139,34 @@ export default {
         this.fetchGroups()
       }
     },
-    defaultGroup(val) {
-      if (val && this.ownerGroups.length > 0) {
-        const group = this.ownerGroups.find(g => g.id === val)
-        if (group) {
-          this.selectedGroup = group
+    // Устанавливаем дефолтную группу, если она есть в props или в теге Owner_1
+    ownerGroups(groups) {
+      if (groups.length > 0) {
+        // Сбрасываем выбор, если группы изменились
+        this.selectedGroup = null
+        
+        // Определим владельца из тега заранее (для логирования)
+        const ownerTagValue = this.ownerFromTag
+        
+        //  приоритет 1: defaultGroup из props (если указан)
+        if (this.defaultGroup) {
+          const group = groups.find(g => g.id === this.defaultGroup)
+          if (group) {
+           
+            this.selectedGroup = group
+            return
+          } else {
+          }
+        }
+        
+        // приоритет 2: значение из тега Owner_1
+        if (ownerTagValue) {
+          const group = groups.find(g => g.id === ownerTagValue)
+          if (group) {
+            this.selectedGroup = group
+            return
+          } else {
+          }
         }
       }
     }
@@ -126,37 +177,47 @@ export default {
       this.selectedGroup = null
     },
     escalate() {
+      // Логируем выбранную группу
+      
       this.$emit('escalate', {
         items: this.items,
-        group: this.selectedGroup ? this.selectedGroup.id : null
+        escalation_group: this.selectedGroup ? this.selectedGroup.id : null
       })
       this.close()
     },
     fetchGroups() {
       this.loading = true
       
-      // Получаем настройки групп из конфигурации
-      const config = this.$store.getters.getConfig()
-      const internalGroups = config.JIRA_OWNERS_GROUPS || {}
-      const externalGroups = config.JIRA_EXT_OWNERS_GROUPS || {}
-      
-      // Форматируем группы для выбора
-      const groups = [
-        ...Object.entries(internalGroups).map(([id, name]) => ({ id, name, isExternal: false })),
-        ...Object.entries(externalGroups).map(([id, name]) => ({ id, name, isExternal: true }))
-      ]
-      
-      this.ownerGroups = groups
-      
-      // Устанавливаем дефолтную группу, если она есть
-      if (this.defaultGroup) {
-        const group = groups.find(g => g.id === this.defaultGroup)
-        if (group) {
-          this.selectedGroup = group
-        }
-      }
-      
-      this.loading = false
+      // получаем данные о владельцах Jira через API
+      JiraService.getJiraOwners()
+        .then(response => {
+          
+          // получаем группы из ответа API
+          const internalGroups = response.owners?.internal_owners || {}
+          const externalGroups = response.owners?.external_owners || {}
+        
+          
+          // форматируем группы для выбора
+          const groups = [
+            ...Object.entries(internalGroups).map(([id, name]) => ({ id, name: id, isExternal: false })),
+            ...Object.entries(externalGroups).map(([id, name]) => {
+              // обрабатываем случай, когда name может быть массивом
+              const displayName = Array.isArray(name) ? name[0] : name
+              return { id, name: displayName, isExternal: true }
+            })
+          ]
+
+          
+          this.ownerGroups = groups
+        })
+        .catch(error => {
+          
+          // В случае ошибки, устанавливаем пустой массив групп
+          this.ownerGroups = []
+        })
+        .finally(() => {
+          this.loading = false
+        })
     }
   }
 }

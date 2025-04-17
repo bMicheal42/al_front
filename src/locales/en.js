@@ -85,7 +85,7 @@ export const en = {
   MergeIncident: 'Merge Incident',
   SplitIncident: 'Split Incident',
   MovingAlerts: 'Moving alerts...',
-  NewIncident: 'New Incident',
+  NewIncident: 'New Issue',
   TakeInFixingBy24Per7: 'Incident',
   Aidone: 'AI Done',
   FalsePositive: 'False positive',

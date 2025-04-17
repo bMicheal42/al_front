@@ -708,22 +708,35 @@
         </v-btn>
       </span>
     </div>
+
+    <!-- компонент EscalateDialog -->
+    <escalate-dialog
+      v-model="showEscalateDialog"
+      :items="selectedForEscalation"
+      :default-group="defaultOwnerGroup"
+      @escalate="onEscalate"
+    />
   </v-app>
 </template>
 
 <script>
-import Banner from '@/components/lib/Banner.vue'
 import ProfileMe from '@/components/auth/ProfileMe.vue'
 import Snackbar from '@/components/lib/Snackbar.vue'
+import EscalateDialog from '@/components/EscalateDialog.vue'
+import Banner from '@/components/lib/Banner.vue'
 
 import i18n from '@/plugins/i18n'
+import moment from 'moment'
+import Vue from 'vue'
+import debounce from 'lodash/debounce'
 
 export default {
   name: 'App',
   components: {
     Banner,
     ProfileMe,
-    Snackbar
+    Snackbar,
+    EscalateDialog
   },
   props: [],
   data: () => ({
@@ -737,7 +750,9 @@ export default {
       signin: { icon: 'account_circle', text: i18n.t('SignIn'), path: '/login' }
     },
     error: false,
-    isFixed: false // Tracks whether the toolbar should be fixed
+    isFixed: false,
+    showEscalateDialog: false,
+    defaultOwnerGroup: null
   }),
   computed: {
     items() {
@@ -1050,8 +1065,49 @@ export default {
         this.$store.dispatch('alerts/getAlerts')
       })
     },
-    makeBulkAction({ items, timeout = this.ackTimeout, action = 'ack', clearSelected = true }) {
-      Promise.all(items.map(a => this.$store.dispatch('alerts/takeAction', [a.id, action, '', timeout])))
+    findMasterAlert(items) {
+      if (!items || items.length === 0) return null
+      
+      // Найти алерт с самым ранним create_time
+      return items.reduce((earliest, alert) => {
+        if (!earliest || new Date(alert.createTime) < new Date(earliest.createTime)) {
+          return alert
+        }
+        return earliest
+      }, null)
+    },
+    
+    getOwnerTagValue(alert) {
+      if (!alert || !alert.tags) return null
+      
+      // найти тег Owner_1 
+      const ownerTag = alert.tags.find(tag => tag.startsWith('Owner_1:'))
+      if (ownerTag) {
+        return ownerTag.split(':')[1]
+      }
+      return null
+    },
+    
+    bulkEscalate() {
+      const masterAlert = this.findMasterAlert(this.selectedForEscalation)
+      this.defaultOwnerGroup = masterAlert ? this.getOwnerTagValue(masterAlert) : null
+      this.showEscalateDialog = true
+    },
+    
+    onEscalate({ items, escalation_group }) {
+      // вызываем api с параметром escalation_group в additionalParams
+      this.makeBulkAction({ 
+        items: items, 
+        timeout: this.ackTimeout, 
+        action: 'esc',
+        additionalParams: { 
+          escalation_group: escalation_group 
+        }
+      })
+    },
+    
+    makeBulkAction({ items, timeout = this.ackTimeout, action = 'ack', clearSelected = true, additionalParams = {} }) {
+      Promise.all(items.map(a => this.$store.dispatch('alerts/takeAction', [a.id, action, '', timeout, additionalParams])))
         .then(() => {
           if (clearSelected) {
             this.clearSelected()
@@ -1070,9 +1126,6 @@ export default {
     },
     bulkFalsePositive() {
       this.makeBulkAction({ items: this.selectedForFalsePositive, timeout: this.ackTimeout, action: 'false-positive' })
-    },
-    bulkEscalate() {
-      this.makeBulkAction({ items: this.selectedForEscalation, timeout: this.ackTimeout, action: 'esc' })
     },
     bulkConfirmEscalation() {
       this.makeBulkAction({ items: this.selectedForConfirmEscalation, timeout: this.ackTimeout, action: 'escalation' })

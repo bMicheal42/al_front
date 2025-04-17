@@ -4,7 +4,7 @@
     max-width="600px"
   >
     <v-card>
-      <v-card-title class="text-h5 grey lighten-2">
+      <v-card-title class="text-h5 grey darken-2 white--text">
         <h2>
           {{ $t('Escalate') }}
         </h2>

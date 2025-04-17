@@ -414,7 +414,7 @@ export default {
     computedStatus() {
       if (!this.isChild || this.parent === this.item) return this.item?.status
       if (this.item?.status === 'open' || this.item?.status === 'closed') return this.item.status
-      if (this.parent?.status === 'false-positive') return this.parent.status
+      if (this.parent?.status === 'false-positive') return this.item.status
       return 'ack'
     },
     computedJiraStatus() {

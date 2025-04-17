@@ -1065,12 +1065,11 @@ export default {
         this.$store.dispatch('alerts/getAlerts')
       })
     },
-    findMasterAlert(items) {
+    findIssue(items) {
       if (!items || items.length === 0) return null
-      
-      // Найти алерт с самым ранним create_time
+      // найти issue (incident:true)
       return items.reduce((earliest, alert) => {
-        if (!earliest || new Date(alert.createTime) < new Date(earliest.createTime)) {
+        if (alert.attributes?.incident) {
           return alert
         }
         return earliest
@@ -1089,7 +1088,7 @@ export default {
     },
     
     bulkEscalate() {
-      const masterAlert = this.findMasterAlert(this.selectedForEscalation)
+      const masterAlert = this.findIssue(this.selectedForEscalation)
       this.defaultOwnerGroup = masterAlert ? this.getOwnerTagValue(masterAlert) : null
       this.showEscalateDialog = true
     },

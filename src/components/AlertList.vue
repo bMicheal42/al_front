@@ -77,117 +77,13 @@
           :data-id="item.id+'_nested'"
         >
           <td
-            v-if="getIssueAlerts(item).length > 0"
             :colspan="12"
             class="no-padding"
           >
-            <v-card class="inner-content">
-              <v-card-text class="no-padding">
-                <v-data-table
-                  v-if="isExpanded(item.id)"
-                  :headers="internalHeaders"
-                  :items="getIssueAlerts(item, true)"
-                  item-key="id"
-                  :class="isDark ? 'nested-table-dark' : 'nested-table-light'"
-                  hide-default-footer
-                  :pagination.sync="internalPagination"
-                  :rows-per-page-text="`${$i18n.t('RowsPerPage')}:`"
-                >
-                  <template #items="{ item: alert, selected }">
-                    <tr
-                      :key="alert.id"
-                      :style="{ 'background-color': isDark ? '#706e6e' : '#f4f4f4' }"
-                      @click="selectItem(alert, $event, nestedSelected[alert.id], false, item)"
-                    >
-                      <td
-                        :style="fontStyle"
-                      >
-                        <v-checkbox
-                          :input-value="nestedSelected[alert.id]"
-                          primary
-                          hide-details
-                          color="gray"
-                          class="select-box"
-                          :ripple="false"
-                          :size="fontSize"
-                          @click.stop
-                          @change="onAlertChecked(alert, item)"
-                        />
-                      </td>
-                      <td
-                        v-for="col in internalColumns"
-                        :key="col"
-                        :class="[internalHeadersMap[col].class || '']"
-                      >
-                        <column-content
-                          :is-child="true"
-                          :col="col"
-                          :item="alert"
-                          :parent="item"
-                          :is-dark="isDark"
-                          :show-notes-icon="showNotesIcon"
-                          :alerts="alertsMap"
-                          :last-note="lastNote"
-                        />
-                      </td>
-                      <td>
-                        <div
-                          :key="alert.status"
-                          :style="{ 'background-color': 'transparent'}"
-                        >
-                          <v-btn
-                            v-if="!isClosed(alert.status)"
-                            v-has-perms="'admin'"
-                            flat
-                            icon
-                            smalls
-                            class="btn--plain pa-0 ma-0"
-                            title="Resolve (close)"
-                            @click.stop="handleButtonClick('close', alert.id)"
-                          >
-                            <v-icon
-                              :size="18"
-                              color="#0F0"
-                            >
-                              fa-thumbs-up
-                            </v-icon>
-                          </v-btn>
-                          <v-btn
-                            v-has-perms="'admin'"
-                            flat
-                            icon
-                            smalls
-                            class="btn--plain pa-0 ma-0"
-                            title="Undo (to prev status)"
-                            @click.stop="handleButtonClick('undo', alert.id)"
-                          >
-                            <v-icon
-                              :size="22"
-                              color="#f1c232"
-                            >
-                              undo
-                            </v-icon>
-                          </v-btn>
-                          <v-btn
-                            v-if="isOpen(alert.status)"
-                            flat
-                            icon
-                            small
-                            class="btn--plain pa-0 ma-0"
-                            title="Ack"
-                            @click.stop="handleButtonClick('ack', alert.id)"
-                          >
-                            <v-icon color="#0F0">
-                              check
-                            </v-icon>
-                          </v-btn>
-                        </div>
-                      </td>
-                    </tr>
-                  </template>
-                </v-data-table>
-              </v-card-text>
-            </v-card>
+            <issue-alert-list
+              v-if="isExpanded(item.id)"
+              :item="item"
+            />
           </td>
         </tr>
       </template>
@@ -217,7 +113,7 @@ import { MultiDrag, Sortable } from 'sortablejs'
 import Swap from '@/common/extensions/Swap.js'
 import _ from 'lodash'
 import { hasPermissions } from '@/directives/hasPerms'
-
+import IssueAlertList from './IssueAlertList.vue'
 const multiDragPlugin = new MultiDrag()
 
 const { utils: {
@@ -230,6 +126,7 @@ export default {
   components: {
     ColumnContent,
     LoadingIcon,
+    IssueAlertList,
   },
   props: {
     alerts: {
@@ -238,37 +135,10 @@ export default {
     }
   },
   data: vm => ({
-    internalPagination: { sortBy: 'createTime', descending: true, rowsPerPage: 10 },
+    
     search: '',
     expanded: [],
-    internalHeaders: [
-      {text: '', value: '', align: 'center', sortable: false, width: 'auto', class: 'nested-table-header text-no-wrap'},
-      {text: i18n.t('CreateTime'), value: 'createTime', align: 'left', sortable: true, width: 'auto', class: 'nested-table-header text-no-wrap'},
-      {text: i18n.t('RecoveryTime'), value: 'recoveryTime', align: 'left', sortable: true, width: 'auto', class: 'nested-table-header text-no-wrap'},
-      {text: i18n.t('Severity'), value: 'severity', align: 'left', sortable: true, width: 'auto', class: 'nested-table-header'},
-      {text: i18n.t('Status'), value: 'status', align: 'left', sortable: true, width: 'auto', class: 'nested-table-header text-no-wrap'},
-      {text: i18n.t('TimeInStatus'), value: 'timeInStatus', align: 'left', sortable: true, width: 'auto', class: 'nested-table-header text-no-wrap'},
-      {text: i18n.t('Host'), value: 'event', align: 'left', sortable: true, width: 'auto', class: ['nested-table-header', 'text-no-wrap']},
-      {text: i18n.t('PhysicalHost'), value: 'physicalHost', align: 'left', sortable: true, width: 'auto', class: 'nested-table-header text-no-wrap'},
-      {text: i18n.t('Summary'), value: 'text', align: 'left', sortable: true, width: '400px', class: 'nested-table-header text-header header-mw-400'},
-      {text: i18n.t('SystemAdmin'), value: 'serviceAdmin', align: 'left', sortable: true, width: 'auto', class: 'nested-table-header text-no-wrap'},
-      {text: i18n.t('Service'), value: 'service', align: 'left', sortable: true, width: 'auto', class: 'nested-table-header'},
-      {text: i18n.t('ProjectGroup'), value: 'group', align: 'left', sortable: true, width: 'auto', class: 'nested-table-header'},
-      {text: '', value: '', align: 'left', sortable: false, width: 'auto', class: 'nested-table-header'}
-    ],
-    internalColumns: [
-      'createTime',
-      'recoveryTime',
-      'severity',
-      'status',
-      'timeInStatus',
-      'event',
-      'physicalHost',
-      'text',
-      'serviceAdmin',
-      'service',
-      'group'
-    ],
+    
     headersMap: {
       createTime: { text: i18n.t('CreateTime'), sortable: false, value: 'create_time', class: 'text-no-wrap' },
       id: { text: i18n.t('AlertId'), value: 'id',sortable: false },
@@ -367,12 +237,6 @@ export default {
     },
     actions() {
       return this.$config.actions
-    },
-    internalHeadersMap() {
-      return this.internalHeaders.reduce((acc, header) => {
-        acc[header.value] = header
-        return acc
-      }, {})
     },
     customHeaders() {
       return this.$config.columns.map(c =>
@@ -517,7 +381,10 @@ export default {
         this.openDetailPage(item)
         return event.stopPropagation()
       }
-      this.toggleExpand(item.id)
+
+      if (item.alerts?.length) {
+        this.toggleExpand(item.id)
+      }
     },
     openDetailPage(item) {
       window.open(this.$router.resolve(`/alert/${item.id}`).href, '_blank')
@@ -687,30 +554,6 @@ export default {
     },
     severityColor(severity) {
       return this.$store.getters.getConfig('colors').severity[severity] || 'white'
-    },
-    selectItem(item, event, selected, isIncident, incident) {
-      if (event.altKey) {
-        if (!hasPermissions('admin')) {
-          return
-        }
-
-        this.openDetailPage(item)
-        event.preventDefault()
-        return event.stopPropagation()
-      }
-      if (event.metaKey || event.ctrlKey) {
-        if (isIncident) {
-          this.onIncidentChecked(item, !selected)
-        } else {
-          this.onAlertChecked(item, incident)
-        }
-
-        event.preventDefault()
-        return event.stopPropagation()
-      }
-      if (!this.selected.length) {
-        this.$emit('set-alert', item)
-      }
     },
     isIncident(alert) {
       return alert?.attributes?.incident

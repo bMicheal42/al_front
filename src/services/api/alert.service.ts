@@ -42,7 +42,7 @@ export default {
     return api.delete(`/alert/${alertId}/note/${noteId}`)
   },
   getAlertsByIssueId(issueId: string) {
-    return api.get(`/issues/${issueId}/alerts`)
+    return api.get(`/issue/${issueId}/alerts`)
   },
   getIssues(query: object, setCancelTokenAction) {
     const cancelTokenSource = axios.CancelToken.source()

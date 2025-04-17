@@ -153,22 +153,6 @@
                             </v-icon>
                           </v-btn>
                           <v-btn
-                            v-has-perms="'admin'"
-                            flat
-                            icon
-                            smalls
-                            class="btn--plain pa-0 ma-0"
-                            title="Undo (to prev status)"
-                            @click.stop="handleButtonClick('undo', alert.id)"
-                          >
-                            <v-icon
-                              :size="22"
-                              color="#f1c232"
-                            >
-                              undo
-                            </v-icon>
-                          </v-btn>
-                          <v-btn
                             v-if="isOpen(alert.status)"
                             flat
                             icon

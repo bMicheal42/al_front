@@ -23,7 +23,7 @@
               <v-flex xs12>
                 <v-autocomplete
                   v-model="selectedGroup"
-                  :items="ownerGroups"
+                  :items="sortedGroups"
                   :label="$t('Group')"
                   clearable
                   autocomplete
@@ -33,15 +33,25 @@
                   item-value="id"
                   return-object
                 >
-                  <template v-slot:item="{ item }">
+                  <template v-slot:item="{ item, selected }">
                     <v-list-item-content>
-                      <v-list-item-title>
+                      <v-list-item-title :class="{ 'blue--text': item.isExternal, 'font-weight-bold': selected }">
+                        <v-icon
+                          v-if="selected"
+                          small
+                          color="green"
+                          class="mr-2"
+                        >
+                          mdi-check
+                        </v-icon>
                         {{ item.name }}
                       </v-list-item-title>
-                      <v-list-item-subtitle v-if="item.isExternal">
-                        {{ $t('External') }}
-                      </v-list-item-subtitle>
                     </v-list-item-content>
+                  </template>
+                  <template v-slot:selection="{ item }">
+                    <v-chip :color="item.isExternal ? 'blue lighten-4' : ''">
+                      <span :class="{ 'blue--text text--darken-2': item.isExternal }">{{ item.name }}</span>
+                    </v-chip>
                   </template>
                 </v-autocomplete>
               </v-flex>
@@ -104,6 +114,18 @@ export default {
       set(value) {
         this.$emit('input', value)
       }
+    },
+    // cортированный список групп, где выбранная группа будет первой
+    sortedGroups() {
+      if (!this.selectedGroup) {
+        return this.ownerGroups
+      }
+      
+      // сначала выбранная группа, потом все остальные
+      return [
+        ...this.ownerGroups.filter(g => g.id === this.selectedGroup.id),
+        ...this.ownerGroups.filter(g => g.id !== this.selectedGroup.id)
+      ]
     },
     // получаем значение тега Owner_1 из  для использования как дефолтная группа
     ownerFromTag() {
@@ -207,6 +229,8 @@ export default {
             })
           ]
 
+          // сортируем группы по алфавиту по полю name
+          groups.sort((a, b) => a.name.localeCompare(b.name))
           
           this.ownerGroups = groups
         })

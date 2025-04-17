@@ -489,10 +489,10 @@ export default {
       return utils.statusColor(status)
     },
     initMoment() {
-      const alert = this.item
-      const notes = alert.history ? alert.history.map((h, index) => ({index: index, ...h})) : []
-      const statusNotes = notes.filter(h => h.type !== 'note' && h.status === alert.status).pop()
-      return moment(statusNotes?.updateTime || alert?.receiveTime)
+      const issue = this.item
+      const notes = issue.issue_history ? issue.issue_history.map((h, index) => ({index: index, ...h})) : []
+      const statusNotes = notes.filter(h => h.type !== 'note' && h.status === issue.status).pop()
+      return moment(statusNotes.updateTime)
     },
     formatDuration(duration) {
       const parts = []

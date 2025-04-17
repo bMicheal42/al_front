@@ -20,7 +20,7 @@
               :style="fontStyle"
             >
               <v-checkbox
-                :input-value="false"
+                :input-value="isAlertSelected(alert)"
                 primary
                 hide-details
                 color="gray"
@@ -146,6 +146,10 @@ export default {
     AlertColumnContent
   },
   props: {
+    selected: {
+      type: Array,
+      default: () => []
+    },
     active: {
       type: Boolean,
       default: false
@@ -198,6 +202,9 @@ export default {
     this.getItems()
   },
   methods: {
+    isAlertSelected(alert) {
+      return Boolean(this.$store.state.alerts.selectedTree[this.item.id]?.alert_ids.includes(alert.id))
+    },
     lastNote(item) {
       const note = item.history.filter(h => h.type == 'note' || h.type == 'dismiss').pop()
       return note && note.type == 'note' ? note.text : ''
@@ -242,7 +249,9 @@ export default {
         this.$emit('set-alert', item)
       }
     },
-    onAlertChecked(alert, incident) {}
+    onAlertChecked(alert, issue) {
+      this.$emit('select-alert', { alert, issue })
+    }
   }
 }
 </script>

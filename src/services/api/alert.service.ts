@@ -44,6 +44,9 @@ export default {
   getAlertsByIssueId(issueId: string) {
     return api.get(`/issue/${issueId}/alerts`)
   },
+  merge(items: { issue_id: string, alert_ids: string[], all?: boolean }[]) {
+    return api.post('/issues/merge', items)
+  },
   getIssues(query: object, setCancelTokenAction) {
     const cancelTokenSource = axios.CancelToken.source()
     setCancelTokenAction(cancelTokenSource)

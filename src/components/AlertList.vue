@@ -1,6 +1,11 @@
 <template>
   <!-- eslint-disable vue/no-use-v-if-with-v-for,vue/no-confusing-v-for-v-if -->
   <div>
+    <pre>
+      selectedIssues: {{ selectedIssues.map(i => i.id) }}
+      selectedIssueAlerts: {{ selectedIssueAlerts.map(a => a.id) }}
+      selectedTree: {{ selectedTree }}
+    </pre>
     <v-data-table
       v-model="selected"
       :headers="customHeaders"
@@ -37,7 +42,7 @@
             :style="fontStyle"
           >
             <v-checkbox
-              v-model="rowSelected"
+              :input-value="isIssueSelected(item)"
               primary
               hide-details
               color="gray"
@@ -45,7 +50,7 @@
               :ripple="false"
               :size="fontSize"
               @click.stop
-              @change="onIncidentChecked(item, rowSelected)"
+              @change="selectIssue(item)"
             />
           </td>
           <td
@@ -83,6 +88,7 @@
             <issue-alert-list
               v-if="isExpanded(item.id)"
               :item="item"
+              @select-alert="selectAlert"
             />
           </td>
         </tr>
@@ -114,6 +120,7 @@ import Swap from '@/common/extensions/Swap.js'
 import _ from 'lodash'
 import { hasPermissions } from '@/directives/hasPerms'
 import IssueAlertList from './IssueAlertList.vue'
+import { mapState } from 'vuex'
 const multiDragPlugin = new MultiDrag()
 
 const { utils: {
@@ -181,6 +188,7 @@ export default {
     timer: null
   }),
   computed: {
+    ...mapState('alerts', ['selectedIssues', 'selectedIssueAlerts', 'selectedTree']),
     isDark() {
       return this.$store.getters.getPreference('isDark')
     },
@@ -372,6 +380,16 @@ export default {
     })
   },
   methods: {
+    isIssueSelected(issue) {
+      return Boolean(this.$store.state.alerts.selectedTree[issue.id]?.all)
+    },
+    selectAlert({ alert, issue }) {
+      this.$store.dispatch('alerts/toggleIssueAlertSelection', { alert, issue })
+      // this.$store.dispatch('alerts/toggleIssueSelection', issue)
+    },
+    selectIssue(issue) {
+      this.$store.dispatch('alerts/toggleIssueSelection', issue)
+    },
     handleRowClick(item, event) {
       if (event.altKey) {
         if (!hasPermissions('admin')) {

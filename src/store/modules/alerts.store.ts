@@ -7,6 +7,13 @@ import { CancelTokenSource } from 'axios'
 const namespaced = true
 
 const state = {
+  // new issue state start
+  selectedIssueAlerts: [],
+  selectedIssues: [],
+  selectedTree: {},
+  // new issue state end
+
+
   isLoading: false,
   isSearching: false,
   isMoving: false,
@@ -55,6 +62,15 @@ const state = {
 }
 
 const mutations = {
+  SET_SELECTED_TREE(state, tree) {
+    state.selectedTree = tree
+  },
+  SET_SELECTED_ISSUE_ALERTS(state, alerts) {
+    state.selectedIssueAlerts = alerts
+  },  
+  SET_SELECTED_ISSUES(state, issues) {
+    state.selectedIssues = issues
+  },
   SET_LOADING(state): any {
     state.isLoading = true
   },
@@ -139,6 +155,85 @@ const mutations = {
 }
 
 const actions = {
+  toggleIssueSelection({commit, state}, issue) {
+    const hasIssue = Boolean(state.selectedTree[issue.id])
+
+    // если элемент выбран, то переключаем выбор алертов
+    if (hasIssue) {
+      const selectedIssue = state.selectedTree[issue.id]
+      // если все алерты выбраны, то удаляем ишью
+      if (selectedIssue.all) {
+        commit('SET_SELECTED_TREE', Object.fromEntries(Object.entries(state.selectedTree).filter(([key]) => key !== issue.id)))
+      } else {
+        commit('SET_SELECTED_TREE', {
+          ...state.selectedTree,
+          [issue.id]: {
+            ...selectedIssue,
+            all: true,
+            alert_ids: issue.alerts
+          }
+        })
+      }
+
+      return
+    }
+
+    // если элемент выбран, и есть алерты, то переключаем выбор алертов
+    commit('SET_SELECTED_TREE', {
+      ...state.selectedTree,
+      [issue.id]: {
+        all: true,
+        alert_ids: issue.alerts
+      }
+    })
+  },
+  toggleIssueAlertSelection({commit, state}, { alert, issue }) {
+    const selectedIssue = state.selectedTree[issue.id]
+    const selectedIssueAlert = selectedIssue?.alert_ids.find(id => id === alert.id) ?? null
+
+    // если элемент выбран, то переключаем выбор алертов
+    if (selectedIssue) {
+      if (selectedIssueAlert) {
+        const isLastAlert = selectedIssue.alert_ids.length === 1
+
+        if (isLastAlert) {
+          commit('SET_SELECTED_TREE', Object.fromEntries(Object.entries(state.selectedTree).filter(([key]) => key !== issue.id)))
+          return
+        } 
+
+        commit('SET_SELECTED_TREE', {
+          ...state.selectedTree,
+          [issue.id]: {
+            ...selectedIssue,
+            all: false,
+            alert_ids: selectedIssue.alert_ids.filter(id => id !== alert.id)
+          }
+        })
+
+        return
+      }
+
+      commit('SET_SELECTED_TREE', {
+        ...state.selectedTree,
+          [issue.id]: {
+            ...selectedIssue,
+            alert_ids: [...selectedIssue.alert_ids, alert.id]
+          }
+      })
+
+      return
+    }
+
+    // если элемент не выбран, то добавляем его
+    commit('SET_SELECTED_TREE', {
+      ...state.selectedTree,
+      [issue.id]: {
+        all: false,
+        alert_ids: [alert.id]
+      }
+    })
+  },
+
   getIssues({rootGetters, commit, state}) {
     commit('SET_LOADING')
     // get "lucene" query params (?q=)

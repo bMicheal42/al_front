@@ -102,7 +102,6 @@
           </template>
         </v-list>
       </v-navigation-drawer>
-
       <v-toolbar
         v-if="selected.length === 0"
         :color="isDark ? '#616161' : '#eeeeee'"
@@ -396,7 +395,7 @@
             slot="activator"
             icon
             class="btn--plain"
-            @click="moveAlerts()"
+            @click="makeMerge"
           >
             <v-icon
               style="rotate: 90deg"
@@ -1125,6 +1124,9 @@ export default {
         ids.push(...filteredChilds.map(id => ({ id, isIncident: id === incidentId, parentId: incidentId })))
         return ids
       }, [])
+    },
+    makeMerge() {
+
     },
     // FIXME if already moving something - show snackbar and prevent new move
     moveAlerts(target = null, movedIncidents = null) {

@@ -368,6 +368,7 @@ export default {
       }
     },
     hasDuplicates() {
+      return true
       const duplicateIds = this.item?.alerts
       return !(!duplicateIds || duplicateIds.length === 0)
     },

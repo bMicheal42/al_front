@@ -520,7 +520,7 @@ export default {
       this.toggleExpand(item.id)
     },
     openDetailPage(item) {
-      window.open(`/alert/${item.id}`, '_blank')
+      window.open(this.$router.resolve(`/alert/${item.id}`).href, '_blank')
     },
     onIncidentChecked(incident, selected) {
       const rowElement = document.querySelector(`[data-id="${incident.id}"]`)

@@ -324,8 +324,9 @@
           <span>{{ $t('Ack') }}</span>
         </v-tooltip>
 
+        <!-- Кнопка TakeInFixingBy24Per7 (incident) -->
         <v-tooltip
-          v-if="selectedIncidents.length > 0"
+          v-if="selectedIncidents.length === 1"
           bottom
         >
           <v-btn
@@ -409,7 +410,11 @@
           <span>{{ $t('MergeIncident') }}</span>
         </v-tooltip>
 
-        <v-tooltip bottom>
+        <!-- Кнопка Aidone -->
+        <v-tooltip 
+          v-if="selectedIncidents.length === 1"
+          bottom
+        >
           <v-btn
             slot="activator"
             icon
@@ -445,7 +450,11 @@
           <span>{{ $t('FalsePositive') }}</span>
         </v-tooltip>
 
-        <v-tooltip bottom>
+        <!-- Кнопка Escalate -->
+        <v-tooltip 
+          v-if="selectedIncidents.length === 1"
+          bottom
+        >
           <v-btn
             slot="activator"
             icon
@@ -463,7 +472,9 @@
           <span>{{ $t('Escalate') }}</span>
         </v-tooltip>
 
+        <!-- Кнопка Confirm Escalation -->
         <v-tooltip
+          v-if="selectedIncidents.length === 1"
           v-has-perms="'admin'"
           bottom
         >

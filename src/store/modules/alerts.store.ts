@@ -17,8 +17,6 @@ export const emitter = createNanoEvents<Events>()
 const state = {
   // new issue state start
   expandedIssues: [],
-  selectedIssueAlerts: [],
-  selectedIssues: [],
   selectedTree: {},
   // new issue state end
 
@@ -77,12 +75,6 @@ const mutations = {
   SET_SELECTED_TREE(state, tree) {
     state.selectedTree = tree
   },
-  SET_SELECTED_ISSUE_ALERTS(state, alerts) {
-    state.selectedIssueAlerts = alerts
-  },  
-  SET_SELECTED_ISSUES(state, issues) {
-    state.selectedIssues = issues
-  },
   SET_LOADING(state): any {
     state.isLoading = true
   },
@@ -90,11 +82,15 @@ const mutations = {
     state.isSearching = true
     state.query = query
   },
-  SET_ALERTS(state, [alerts, total, pageSize, incidentTotal]): any {
+  SET_ALERTS(state, [issues, total, pageSize, incidentTotal]): any {
     state.abort.getIssues = null
     state.isLoading = false
     state.isSearching = false
-    state.alerts = alerts
+    state.alerts = issues
+    state.issuesMap = issues.reduce((acc: any, issue) => {
+      acc[issue.id] = issue
+      return acc
+    }, {})
     state.pagination.totalItems = incidentTotal
     state.pagination.alertItems = total
     state.pagination.rowsPerPage = pageSize
@@ -172,6 +168,11 @@ const actions = {
     const items = Object.entries(state.selectedTree).map(([issueId, data]) => ({ issue_id: issueId, alert_ids: data.alert_ids, all: data.all }))
     return AlertsApi.mergeIssues(items)
   },
+  clearSelected({commit, state}) {
+    commit('SET_SELECTED_TREE', {})
+    commit('SET_SELECTED_ISSUES', [])
+    commit('SET_SELECTED_ISSUE_ALERTS', [])
+  },
   toggleIssueSelection({commit, state}, issue) {
     const hasIssue = Boolean(state.selectedTree[issue.id])
 
@@ -223,6 +224,7 @@ const actions = {
           ...state.selectedTree,
           [issue.id]: {
             ...selectedIssue,
+            id: issue.id,
             all: false,
             alert_ids: selectedIssue.alert_ids.filter(id => id !== alert.id)
           }
@@ -235,6 +237,7 @@ const actions = {
         ...state.selectedTree,
           [issue.id]: {
             ...selectedIssue,
+            id: issue.id,
             alert_ids: [...selectedIssue.alert_ids, alert.id]
           }
       })
@@ -246,6 +249,7 @@ const actions = {
     commit('SET_SELECTED_TREE', {
       ...state.selectedTree,
       [issue.id]: {
+        id: issue.id,
         all: false,
         alert_ids: [alert.id]
       }
@@ -490,25 +494,16 @@ const actions = {
 
 const getters = {
   // TODO: refactor
-  selectedIssues: (state, getters) =>
+  selectedIssues: (state) =>
     Object.values(state.selectedTree)
-    .map((data: any) => ({issue: getters.issuesMap[data.id].issue, ...data})),
+    .map((data: any) => {
+      const issue = state.issuesMap[data.id] ?? null
+      return {issue, ...data}
+    }),
   
   selectedIssueById: (state, getters) => (id: string) => {
     return state.selectedTree[id] ?? null
   },
-  issuesMap: (state) =>
-      Object.values(state.selectedTree)
-      .reduce(
-        (acc: any, data: any) => {
-          const issue = state.alerts.find(a => a.id === data.id)
-          if (issue) {
-            acc[data.id] = {issue, ...data}
-          }
-          return acc
-        },
-        {}
-      ),
   issueById: (state, getters, rootState) => (id: string) => {
     return getters.issuesMap[id]?.issue ?? null
   },

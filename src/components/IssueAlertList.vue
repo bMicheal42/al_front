@@ -235,8 +235,8 @@ export default {
       const note = item.history.filter(h => h.type == 'note' || h.type == 'dismiss').pop()
       return note && note.type == 'note' ? note.text : ''
     },
-    getItems: debounce(async function () {
-
+    // getItems: debounce(async function () {
+    async getItems() {
       // тупая проверка, чтобы не загружать данные, если они уже грузятся
       if (this.isLoading) {
         return
@@ -252,7 +252,8 @@ export default {
         this.isLoading = false
         console.error(error)
       }
-    }, 1500, { leading: true, trailing: true, }),
+    },
+    // }, 1500, { leading: true, trailing: true, }),
     handleButtonClick(action, alertId) {
       console.log(action, alertId)
     },

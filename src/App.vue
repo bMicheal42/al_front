@@ -1029,8 +1029,7 @@ export default {
       }
     },
     clearSelected() {
-      this.$store.dispatch('alerts/updateSelected', [])
-      this.$store.dispatch('alerts/updateNestedSelected', {})
+      this.$store.dispatch('alerts/clearSelected')
       this.multiDragMassDeselect()
     },
     saveSearch() {

@@ -1,11 +1,9 @@
 <template>
   <!-- eslint-disable vue/no-use-v-if-with-v-for,vue/no-confusing-v-for-v-if -->
   <div>
-    <!-- <pre>
-      selectedIssues: {{ selectedIssues.map(i => i.id) }}
-      selectedIssueAlerts: {{ selectedIssueAlerts.map(a => a.id) }}
+    <pre>
       selectedTree: {{ selectedTree }}
-    </pre> -->
+    </pre>
     <v-data-table
       v-model="selected"
       :headers="customHeaders"
@@ -185,7 +183,7 @@ export default {
     timer: null
   }),
   computed: {
-    ...mapState('alerts', ['selectedIssues', 'selectedIssueAlerts', 'selectedTree', 'expandedIssues']),
+    ...mapState('alerts', ['selectedTree', 'expandedIssues']),
     isDark() {
       return this.$store.getters.getPreference('isDark')
     },

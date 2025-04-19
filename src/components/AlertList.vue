@@ -1,11 +1,11 @@
 <template>
   <!-- eslint-disable vue/no-use-v-if-with-v-for,vue/no-confusing-v-for-v-if -->
   <div>
-    <pre>
+    <!-- <pre>
       selectedIssues: {{ selectedIssues.map(i => i.id) }}
       selectedIssueAlerts: {{ selectedIssueAlerts.map(a => a.id) }}
       selectedTree: {{ selectedTree }}
-    </pre>
+    </pre> -->
     <v-data-table
       v-model="selected"
       :headers="customHeaders"

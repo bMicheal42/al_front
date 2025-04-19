@@ -47,7 +47,7 @@ export default {
     }
     return api.get(`/issue/${issueId}/alerts`, config)
   },
-  merge(items: { issue_id: string, alert_ids: string[], all?: boolean }[]) {
+  mergeIssues(items: { issue_id: string, alert_ids: string[], all?: boolean }[]) {
     return api.post('/issues/merge', items)
   },
   getIssues(query: object, setCancelTokenAction) {

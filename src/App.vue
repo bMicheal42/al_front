@@ -103,7 +103,7 @@
         </v-list>
       </v-navigation-drawer>
       <v-toolbar
-        v-if="selected.length === 0"
+        v-if="selectedIssues.length === 0"
         :color="isDark ? '#616161' : '#eeeeee'"
         flat
         class="mb-1"
@@ -261,7 +261,7 @@
       </v-toolbar>
 
       <v-toolbar
-        v-if="selected.length > 0"
+        v-if="selectedIssues.length > 0"
         :color="isDark ? 'rgb(97, 97, 97)' : 'rgb(238, 238, 238)'"
         class="mb-1"
       >
@@ -279,7 +279,7 @@
         <v-spacer />
 
         <span class="subheading">
-          <span class="hidden-sm-and-down">{{ $t('Selected') }} {{ $t('SelectedIncidents') }}:</span> {{ selectedIncidents.length }}
+          <span class="hidden-sm-and-down">{{ $t('Selected') }} {{ $t('SelectedIncidents') }}:</span> {{ selectedIssuesAll.length }}
           <span class="hidden-sm-and-down">
             ({{ $t('SelectedWith') }} {{ selectedAlertsCount }} <span class="hidden-sm-and-down"> {{ $t('AlertsInside') }}</span>
           </span>)
@@ -288,7 +288,7 @@
         <v-spacer />
 
         <!-- FIXME TEMPORARY HIDDEN ACTION (its need?) -->
-        <v-tooltip
+        <!-- <v-tooltip
           v-if="1 === 2"
           bottom
         >
@@ -303,7 +303,7 @@
             </v-icon>
           </v-btn>
           <span>{{ $t('Watch') }}</span>
-        </v-tooltip>
+        </v-tooltip> -->
 
         <v-tooltip bottom>
           <v-btn
@@ -324,7 +324,7 @@
         </v-tooltip>
 
         <v-tooltip
-          v-if="selectedIncidents.length > 0"
+          v-if="selectedIssues.length > 0"
           bottom
         >
           <v-btn
@@ -681,7 +681,6 @@
       <router-view />
       <snackbar />
     </v-content>
-
     <div v-if="!isKiosk">
       <span class="hidden-sm-and-up">
         <v-btn
@@ -714,7 +713,7 @@
 import Banner from '@/components/lib/Banner.vue'
 import ProfileMe from '@/components/auth/ProfileMe.vue'
 import Snackbar from '@/components/lib/Snackbar.vue'
-
+import { mapGetters } from 'vuex'
 import i18n from '@/plugins/i18n'
 
 export default {
@@ -739,6 +738,7 @@ export default {
     isFixed: false // Tracks whether the toolbar should be fixed
   }),
   computed: {
+    ...mapGetters('alerts', ['selectedIssues', 'selectedIssueById', 'issueById']),
     items() {
       return [
         {
@@ -911,63 +911,64 @@ export default {
       return this.$config.actions
     },
     selected() {
-      return this.$store.state.alerts.alerts.filter(a => this.$store.state.alerts.selected.some(s => a.id === s.id))
-    },
-    selectedIncidents() {
-      return this.selected.filter(a => !!a.attributes?.incident)
+      return this.selectedIssues.filter(issue => issue.all)
     },
     selectedAlerts() {
-      return this.selected.filter(a => !a.attributes?.incident)
+      return this.selectedIssues.filter(issue => issue.all)
     },
     selectedAlertsCount() {
-      const selectedIncidentAlerts = this.selectedIncidents.reduce((count, incident) => {
-        if (this.$store.state.alerts.nestedSelected[incident.id]) {
-          count += 1
+      const selectedIssuesAlerts = this.selectedIssues.reduce((count, incident) => {
+        if (incident.alert_ids.length > 0) {
+          count += incident.alert_ids.length
         }
         return count
       }, 0)
-      return this.selectedAlerts.length + selectedIncidentAlerts
+      return selectedIssuesAlerts
     },
     selectedOpen() {
-      return [
-        ...this.selectedIncidents.filter(inc => this.$store.state.alerts.nestedSelected[inc.id]),
-        ...this.selectedAlerts
-      ].filter(a => a.status === 'open')
+      // TODO: определеить логику для выбора открытых инцидентов
+      return this.selectedIssues.filter(data => data.issue.status === 'open')
+      // return [
+      //   ...this.selectedIssues.filter(inc => this.$store.state.alerts.nestedSelected[inc.id]),
+      //   ...this.selectedAlerts
+      // ].filter(a => a.status === 'open')
+    },
+    selectedIssuesAll() {
+      return this.selectedIssues.filter(issue => issue.all)
     },
     selectedFixing() {
-      return this.selected.filter(a => a.status === 'fixing-by-24/7')
+      return this.selectedIssues.filter(data => data.issue.status === 'fixing-by-24/7')
     },
     selectedForFalsePositive() {
-      return this.selectedIncidents.filter(a => ['false-positive', 'closed','open'].includes(a.status) === false)
+      return this.selectedIssues.filter(data => ['false-positive', 'closed','open'].includes(data.issue.status) === false)
     },
     selectedForEscalation() {
-      return this.selectedIncidents.filter(a => ['fixing-by-24/7', 'observation'].includes(a.status))
+      return this.selectedIssues.filter(data => ['fixing-by-24/7', 'observation'].includes(data.issue.status))
     },
     selectedForConfirmEscalation() {
-      return this.selectedIncidents.filter(a => a.status === 'pending')
+      return this.selectedIssues.filter(data => data.issue.status === 'pending')
     },
     selectedForClose() {
-      return this.selected.filter(a => a.status !== 'closed')
+      return this.selectedIssues.filter(data => data.issue.status !== 'closed')
     },
     selectedAcknowledgedIncidents() { // FIXME REVIEW ON OPER-14748
-      return this.selectedIncidents.filter(a => a.status === 'ack')
+      return this.selectedIssues.filter(data => data.issue.status === 'ack')
     },
     isSplittableIncidentSelected() {
-      if (this.selectedIncidents.length !== 1) return false
-      const selectedIncident = this.selectedIncidents[0]
-      const selectedIncidentAlertsLength = (selectedIncident.attributes['duplicate alerts'] || []).length
-      return (selectedIncidentAlertsLength === 1 && this.selectedAlerts.length === 1)
+      if (this.selectedIssues.length !== 1) return false
+      const selectedIncident = this.selectedIssues[0]
+      return !selectedIncident.all
     },
     isIncidentPartSelected() { // only one and only partial
-      if (this.selectedIncidents.length !== 1) return false
-      const selectedIncident = this.selectedIncidents[0]
-      const selectedIncidentAlertsLength = (selectedIncident.attributes['duplicate alerts'] || []).length
+      if (this.selectedIssues.length !== 1) return false
+      const selectedIncident = this.selectedIssues[0]
+      const selectedIncidentAlertsLength = this.selectedIssues?.alert_ids?.length
       const selectedIncidentAlert = this.$store.state.alerts.nestedSelected[selectedIncident?.id]
 
-      return (selectedIncidentAlertsLength + 1 > this.selectedAlerts.length + (selectedIncidentAlert ? 1 : 0))
+      return (selectedIncidentAlertsLength + 1 >  (selectedIncidentAlert ? 1 : 0))
     },
     isMultipleIncidentsSelected() { // 2 or more (part or full)
-      return this.selectedIncidents.length > 1
+      return this.selectedIssues.length > 1
     },
     ackTimeout() {
       return this.$store.getters.getPreference('ackTimeout')
@@ -1044,7 +1045,7 @@ export default {
       this.$store.dispatch('removeUserQuery', query)
     },
     takeBulkAction(action) {
-      Promise.all(this.selected.map(a => this.$store.dispatch('alerts/takeAction', [a.id, action, '']))).then(() => {
+      Promise.all(this.selectedIssuesAll.map(a => this.$store.dispatch('alerts/takeAction', [a.id, action, '']))).then(() => {
         this.clearSelected()
         this.$store.dispatch('alerts/getIssues')
       })
@@ -1099,7 +1100,7 @@ export default {
     // 2. if incident has duplicate alerts, then if partial alerts are selected, then selected children ids
     // 3. if incident has duplicate alerts, then if full incident is selected, then incident id
     getMovingIds(passedIncidents = null) {
-      return (passedIncidents || this.selectedIncidents).reduce((ids, { id: incidentId, attributes }) => {
+      return (passedIncidents || this.selectedIssues).reduce((ids, { id: incidentId, attributes }) => {
         const duplicateIds = attributes['duplicate alerts']
 
         if (!duplicateIds || duplicateIds.length === 0) {
@@ -1108,7 +1109,7 @@ export default {
         }
 
         // if not selected add incident id and all child ids (for dragged but no selected)
-        if (!this.selectedIncidents.find(i => i.id === incidentId)) {
+        if (!this.selectedIssues.find(i => i.id === incidentId)) {
           ids.push({ id: incidentId, isIncident: true, all: true })
           ids.push(...duplicateIds.map(id => ({ id, isIncident: false, parentId: incidentId })))
           return ids
@@ -1126,7 +1127,10 @@ export default {
       }, [])
     },
     makeMerge() {
-
+      this.$store.dispatch('alerts/makeMerge').then(() => {
+        this.clearSelected()
+        this.$store.dispatch('alerts/getIssues')
+      })
     },
     // FIXME if already moving something - show snackbar and prevent new move
     moveAlerts(target = null, movedIncidents = null) {

@@ -167,6 +167,11 @@ const mutations = {
 }
 
 const actions = {
+  makeMerge({commit, state}) {  
+    // @ts-ignore
+    const items = Object.entries(state.selectedTree).map(([issueId, data]) => ({ issue_id: issueId, alert_ids: data.alert_ids, all: data.all }))
+    return AlertsApi.mergeIssues(items)
+  },
   toggleIssueSelection({commit, state}, issue) {
     const hasIssue = Boolean(state.selectedTree[issue.id])
 
@@ -194,6 +199,7 @@ const actions = {
     commit('SET_SELECTED_TREE', {
       ...state.selectedTree,
       [issue.id]: {
+        id: issue.id,
         all: true,
         alert_ids: issue.alerts
       }
@@ -483,6 +489,29 @@ const actions = {
 }
 
 const getters = {
+  // TODO: refactor
+  selectedIssues: (state, getters) =>
+    Object.values(state.selectedTree)
+    .map((data: any) => ({issue: getters.issuesMap[data.id].issue, ...data})),
+  
+  selectedIssueById: (state, getters) => (id: string) => {
+    return state.selectedTree[id] ?? null
+  },
+  issuesMap: (state) =>
+      Object.values(state.selectedTree)
+      .reduce(
+        (acc: any, data: any) => {
+          const issue = state.alerts.find(a => a.id === data.id)
+          if (issue) {
+            acc[data.id] = {issue, ...data}
+          }
+          return acc
+        },
+        {}
+      ),
+  issueById: (state, getters, rootState) => (id: string) => {
+    return getters.issuesMap[id]?.issue ?? null
+  },
   alerts: (state, getters, rootState) => {
     if (state.isWatch) {
       const username = rootState.auth.payload.preferred_username

@@ -7,8 +7,9 @@
         item-key="id"
         :class="isDark ? 'nested-table-dark' : 'nested-table-light'"
         hide-default-footer
-        :pagination.sync="internalPagination"
+        :pagination.sync="pagination"
         :rows-per-page-text="`${$i18n.t('RowsPerPage')}:`"
+        :total-items="total"
       >
         <template #items="{ item: alert, selected }">
           <tr
@@ -110,6 +111,7 @@
 import i18n from '@/plugins/i18n'
 import AlertsApi from '@/services/api/alert.service'
 import AlertColumnContent from '@/components/AlertColumnContent.vue'
+import { emitter } from '@/store/modules/alerts.store'
 const internalHeaders = [
   {text: '', value: '', align: 'center', sortable: false, width: 'auto', class: 'nested-table-header text-no-wrap'},
   {text: i18n.t('CreateTime'), value: 'createTime', align: 'left', sortable: true, width: 'auto', class: 'nested-table-header text-no-wrap'},
@@ -161,7 +163,10 @@ export default {
   },
   data() {
     return {
-      internalPagination: { sortBy: 'createTime', descending: true, rowsPerPage: 10 },
+      isLoading: false,
+      clearSubscription: null,
+      pagination: { sortBy: 'createTime', descending: true, rowsPerPage: 10, page: 1 },
+      total: 0,
       items: [],
       internalHeaders,
       internalColumns,
@@ -198,8 +203,25 @@ export default {
       }, {})
     },
   },
+  watch: {
+    pagination: {
+      handler() {
+        this.getItems()
+      },
+    }
+  },
   mounted() {
     this.getItems()
+
+    this.clearSubscription = emitter.on('fetchIssues', () => {
+      if (this.isLoading) {
+        return
+      }
+      this.getItems()
+    })
+  },
+  beforeDestroy() {
+    this.clearSubscription()
   },
   methods: {
     isAlertSelected(alert) {
@@ -210,8 +232,22 @@ export default {
       return note && note.type == 'note' ? note.text : ''
     },
     async getItems() {
-      const res = await AlertsApi.getAlertsByIssueId(this.item.id)
-      this.items = res.alerts
+
+      // тупая проверка, чтобы не загружать данные, если они уже грузятся
+      if (this.isLoading) {
+        return
+      }
+
+      try {
+        this.isLoading = true
+        const res = await AlertsApi.getAlertsByIssueId(this.item.id, { page: this.pagination.page, 'page-size': this.pagination.rowsPerPage })
+        this.items = res.alerts
+        this.total = res.total
+        this.isLoading = false
+      } catch (error) {
+        this.isLoading = false
+        console.error(error)
+      }
     },
     handleButtonClick(action, alertId) {
       console.log(action, alertId)
@@ -252,6 +288,6 @@ export default {
     onAlertChecked(alert, issue) {
       this.$emit('select-alert', { alert, issue })
     }
-  }
+  },
 }
 </script>

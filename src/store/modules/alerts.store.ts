@@ -3,11 +3,20 @@ import AlertsApi from '@/services/api/alert.service'
 import moment from 'moment'
 import utils from '@/common/utils'
 import { CancelTokenSource } from 'axios'
+import { createNanoEvents } from '@/lib/emitter'
 
 const namespaced = true
 
+interface Events {
+  fetchIssues(): void
+}
+
+export const emitter = createNanoEvents<Events>()
+
+
 const state = {
   // new issue state start
+  expandedIssues: [],
   selectedIssueAlerts: [],
   selectedIssues: [],
   selectedTree: {},
@@ -62,6 +71,9 @@ const state = {
 }
 
 const mutations = {
+  SET_EXPANDED_ISSUES(state, issues) {
+    state.expandedIssues = issues
+  },
   SET_SELECTED_TREE(state, tree) {
     state.selectedTree = tree
   },
@@ -301,6 +313,8 @@ const actions = {
 
     commit('ABORT_QUERY', 'getIssues')
 
+    emitter.emit('fetchIssues')
+
     return AlertsApi.getIssues(params, setAbortToken)
       .then(({issues, total, pageSize, incidentTotal}) => {
         return commit('SET_ALERTS', [issues, total, pageSize, incidentTotal])
@@ -308,6 +322,14 @@ const actions = {
       .catch(err => {
         if (err.message !== 'Too many search requests. Cancelling current query.') commit('RESET_LOADING')
       })
+  },
+  toggleExpandedIssue({commit, state}, issueId) {
+    const index = state.expandedIssues.indexOf(issueId)
+      if (index > -1) {
+        commit('SET_EXPANDED_ISSUES', state.expandedIssues.filter(id => id !== issueId))
+      } else {
+        commit('SET_EXPANDED_ISSUES', [...state.expandedIssues, issueId])
+      }
   },
   abortGetAlerts({commit}) {
     commit('ABORT_QUERY', 'getIssues')

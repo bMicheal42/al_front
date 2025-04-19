@@ -142,10 +142,7 @@ export default {
     }
   },
   data: vm => ({
-    
     search: '',
-    expanded: [],
-    
     headersMap: {
       createTime: { text: i18n.t('CreateTime'), sortable: false, value: 'create_time', class: 'text-no-wrap' },
       id: { text: i18n.t('AlertId'), value: 'id',sortable: false },
@@ -188,7 +185,7 @@ export default {
     timer: null
   }),
   computed: {
-    ...mapState('alerts', ['selectedIssues', 'selectedIssueAlerts', 'selectedTree']),
+    ...mapState('alerts', ['selectedIssues', 'selectedIssueAlerts', 'selectedTree', 'expandedIssues']),
     isDark() {
       return this.$store.getters.getPreference('isDark')
     },
@@ -458,15 +455,10 @@ export default {
       this.takeAction(alertId, action)
     },
     toggleExpand(id) { // FIXME move expanded to vuex and clean them after alert moving
-      const index = this.expanded.indexOf(id)
-      if (index > -1) {
-        this.expanded.splice(index, 1)
-      } else {
-        this.expanded.push(id)
-      }
+      this.$store.dispatch('alerts/toggleExpandedIssue', id)
     },
     isExpanded(id) {
-      return this.expanded.includes(id)
+      return this.expandedIssues.includes(id)
     },
     getIssueAlerts(issue, includeSelf = false) {
       const duplicateIds = issue.attributes?.['duplicate alerts'] || []

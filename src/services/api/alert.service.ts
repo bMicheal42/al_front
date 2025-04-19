@@ -41,8 +41,11 @@ export default {
   deleteNote(alertId: string, noteId: string) {
     return api.delete(`/alert/${alertId}/note/${noteId}`)
   },
-  getAlertsByIssueId(issueId: string) {
-    return api.get(`/issue/${issueId}/alerts`)
+  getAlertsByIssueId(issueId: string, query: object) {
+    let config = {
+      params: query
+    }
+    return api.get(`/issue/${issueId}/alerts`, config)
   },
   merge(items: { issue_id: string, alert_ids: string[], all?: boolean }[]) {
     return api.post('/issues/merge', items)

@@ -493,7 +493,7 @@ export default {
       const issue = this.item
       const notes = issue.issue_history ? issue.issue_history.map((h, index) => ({index: index, ...h})) : []
       const statusNotes = notes.filter(h => h.type !== 'note' && h.status === issue.status).pop()
-      return moment(statusNotes.updateTime)
+      return moment(statusNotes?.updateTime ?? issue?.create_time)
     },
     formatDuration(duration) {
       const parts = []

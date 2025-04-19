@@ -852,9 +852,11 @@ tr:hover div.action-buttons {
 .nested-table-light thead tr, .nested-table-dark thead tr {
   height: 42px !important;
 }
-.nested-table-light .v-datatable__progress, .nested-table-dark .v-datatable__progress {
-  display: none !important;
+
+.nested-table-light table tr.v-datatable__progress {
+  height: 3px !important;
 }
+
 .nested-table-light th, .nested-table-dark th {
   font-weight: bold !important;
   padding: 10px;

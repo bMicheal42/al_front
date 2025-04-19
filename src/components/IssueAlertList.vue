@@ -5,6 +5,7 @@
         :headers="internalHeaders"
         :items="items"
         item-key="id"
+        :loading="isLoading"
         :class="isDark ? 'nested-table-dark' : 'nested-table-light'"
         hide-default-footer
         :pagination.sync="pagination"
@@ -112,6 +113,8 @@ import i18n from '@/plugins/i18n'
 import AlertsApi from '@/services/api/alert.service'
 import AlertColumnContent from '@/components/AlertColumnContent.vue'
 import { emitter } from '@/store/modules/alerts.store'
+import debounce from 'lodash.debounce'
+
 const internalHeaders = [
   {text: '', value: '', align: 'center', sortable: false, width: 'auto', class: 'nested-table-header text-no-wrap'},
   {text: i18n.t('CreateTime'), value: 'createTime', align: 'left', sortable: true, width: 'auto', class: 'nested-table-header text-no-wrap'},
@@ -141,6 +144,7 @@ const internalColumns = [
   'service',
   'group'
 ]
+
 
 export default {
   name: 'IssueAlertList',
@@ -231,7 +235,7 @@ export default {
       const note = item.history.filter(h => h.type == 'note' || h.type == 'dismiss').pop()
       return note && note.type == 'note' ? note.text : ''
     },
-    async getItems() {
+    getItems: debounce(async function () {
 
       // тупая проверка, чтобы не загружать данные, если они уже грузятся
       if (this.isLoading) {
@@ -248,7 +252,7 @@ export default {
         this.isLoading = false
         console.error(error)
       }
-    },
+    }, 1500, { leading: true, trailing: true, }),
     handleButtonClick(action, alertId) {
       console.log(action, alertId)
     },
@@ -291,3 +295,18 @@ export default {
   },
 }
 </script>
+<style scoped>
+.alert-table.loading tr.v-datatable__progress {
+  height: 3px;
+}
+
+.alert-table.loading .v-datatable__progress th {
+  position: absolute;
+  width: 100%;
+}
+
+.alert-table.loading div[role='progressbar'] {
+  height: 3px;
+}
+
+</style>
